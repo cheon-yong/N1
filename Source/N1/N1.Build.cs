@@ -8,6 +8,24 @@ public class N1 : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicIncludePaths.AddRange(new string[] { "N1" });
+
+		PublicDependencyModuleNames.AddRange(new string[] { "Core",
+			"CoreUObject",
+			"Engine",
+			"InputCore",
+			"EnhancedInput",
+			"UMG",
+			"NavigationSystem",
+			"AIModule",
+			"GameplayTasks"  
+		});
+
+		PrivateDependencyModuleNames.AddRange(new string[] {
+			"GameFeatures",
+			"GameplayAbilities",
+			"GameplayTasks",
+			"GameplayTags"
+		});
 	}
 }
