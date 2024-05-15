@@ -86,9 +86,9 @@ void AExperienceList3D::SpawnTeleport()
 
 	for (int i = 0; i < length; i++)
 	{
-		float PosX = ((length * -0.5f) + i + 0.5f) * PortalSpacing;
+		float PosY = ((length * -0.5f) + i + 0.5f) * PortalSpacing;
 		FRotator Rotator = GetActorRotation();
-		FVector Offset(PosX, 0.f, 0.f);
+		FVector Offset(0.f, PosY, 0.f);
 
 		FTransform SpawnTransform(StartRotator, StartPosition + Offset);
 		/*AActor* Teleport = GetWorld()->SpawnActorDeferred<AActor>(TeleportClass, SpawnTransform);

@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "N1PawnData.generated.h"
 
+class UN1InputConfig;
+
 /**
  * 
  */
@@ -29,9 +31,9 @@ public:
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Abilities")
 	//TObjectPtr<ULyraAbilityTagRelationshipMapping> TagRelationshipMapping;
 
-	//// Input configuration used by player controlled pawns to create input mappings and bind input actions.
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Input")
-	//TObjectPtr<ULyraInputConfig> InputConfig;
+	// Input configuration used by player controlled pawns to create input mappings and bind input actions.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Input")
+	TObjectPtr<UN1InputConfig> InputConfig;
 
 	//// Default camera mode used by player controlled pawns.
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Camera")
