@@ -10,6 +10,7 @@
 #include "UI/N1TeleportText.h"
 #include "Game/N1UserFacingExperienceDefinition.h"
 #include "N1LogChannels.h"
+#include "CommonSessionSubsystem.h"
 
 // Sets default values
 ATeleportToUserFacingExperience::ATeleportToUserFacingExperience()
@@ -63,7 +64,13 @@ void ATeleportToUserFacingExperience::LoadIntoExperience(APlayerController* Play
 {
 	if (UserFacingExperience)
 	{
-		//UserFacingExperience->
+		auto Req = UserFacingExperience->CreateHostingRequest(this);
+		UGameInstance* GameInstance = GetWorld()->GetGameInstance();
+		if (UCommonSessionSubsystem* Subsystem = GameInstance ? GameInstance->GetSubsystem<UCommonSessionSubsystem>() : nullptr)
+		{
+			Req->OnlineMode = ECommonSessionOnlineMode::Offline;
+			Subsystem->HostSession(PlayerController, Req);
+		}
 	}
 }
 
