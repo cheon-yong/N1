@@ -6,6 +6,7 @@
 #include <Engine/AssetManager.h>
 #include "N1LogChannels.h"
 #include "Game/N1UserFacingExperienceDefinition.h"
+#include "System/DefaultEditorMap/TeleportToUserFacingExperience.h"
 
 // Sets default values
 AExperienceList3D::AExperienceList3D()
@@ -15,6 +16,7 @@ AExperienceList3D::AExperienceList3D()
 
 	PortalSpacing = 500.f;
 	StartPosition = FVector(1200.f, 1200.f, 50.f);
+	StartRotator = FRotator(0.f, 180.f, 0.f);
 }
 
 // Called when the game starts or when spawned
@@ -88,34 +90,25 @@ void AExperienceList3D::SpawnTeleport()
 		FRotator Rotator = GetActorRotation();
 		FVector Offset(PosX, 0.f, 0.f);
 
-		FTransform SpawnTransform(StartPosition + Offset);
+		FTransform SpawnTransform(StartRotator, StartPosition + Offset);
 		/*AActor* Teleport = GetWorld()->SpawnActorDeferred<AActor>(TeleportClass, SpawnTransform);
 		if (Teleport)
 		{
 			Teleports.Add(Teleport);
 		}*/
-		AActor* Teleport = GetWorld()->SpawnActor<AActor>(TeleportClass, SpawnTransform);
+		ATeleportToUserFacingExperience* Teleport = GetWorld()->SpawnActorDeferred<ATeleportToUserFacingExperience>(TeleportClass, SpawnTransform);
+		if (Teleport)
+		{
+			Teleports.Add(Teleport);
+			Teleport->SetUserFacingExperienceDefinition(UserFacingExperienceList[i]);
+		}
 	}
 
-	/*for (const auto& Teleport : Teleports)
+	for (const auto& Teleport : Teleports)
 	{
 		if (Teleport.IsValid())
 		{
 			Teleport.Get()->FinishSpawning(Teleport.Get()->GetActorTransform());
 		}
-	}*/
-}
-
-void AExperienceList3D::OnLoaded()
-{
-	if (OutLoadBundle.Num() == 0)
-	{
-		UE_LOG(LogN1, Error, TEXT("Load Bundle is not Loaded"));
-		return;
-	}
-
-	for (auto& name : OutLoadBundle)
-	{
-		UE_LOG(LogN1, Log, TEXT("%s"), *name.ToString());
 	}
 }

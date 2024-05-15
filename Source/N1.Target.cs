@@ -10,6 +10,9 @@ public class N1Target : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
-		ExtraModuleNames.Add("N1");
+		ExtraModuleNames.AddRange(new string[]{
+			"N1",
+			"CommonUser"
+		});
 	}
 }

@@ -8,6 +8,7 @@
 
 // forward declaration
 class UN1UserFacingExperienceDefinition;
+class ATeleportToUserFacingExperience;
 
 UCLASS()
 class N1_API AExperienceList3D : public AActor
@@ -26,40 +27,42 @@ protected:
 
 	void SpawnTeleport();
 
-	void OnLoaded();
-
 // variable
 public:	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UN1UserFacingExperienceDefinition*> UserFacingExperienceList;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// About Only Visible
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FPrimaryAssetId> OutAssetIdList;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> OutLoadBundle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FAssetData> OutAssetDatas;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bShowAllExperiences = true;
+	UPROPERTY(VisibleAnywhere)
+	TArray<TWeakObjectPtr<AActor>> Teleports;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> ExperiencePortals;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float PortalSpacing;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<AActor> TeleportClass;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector StartPosition;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// About Experience
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Experience")
 	TArray<UN1UserFacingExperienceDefinition*> AdditionalExperiencesToShow;
 
-	UPROPERTY(EditAnywhere)
-	TArray<TWeakObjectPtr<AActor>> Teleports;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Experience")
+	TArray<UN1UserFacingExperienceDefinition*> UserFacingExperienceList;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Experience")
+	TSubclassOf<ATeleportToUserFacingExperience> TeleportClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Experience")
+	bool bShowAllExperiences = true;
+
+	// About Position
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Position")
+	float PortalSpacing;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Position")
+	FVector StartPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Position")
+	FRotator StartRotator;
+
 };

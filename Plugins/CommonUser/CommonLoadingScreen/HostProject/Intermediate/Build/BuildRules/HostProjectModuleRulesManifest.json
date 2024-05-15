@@ -1,0 +1,7 @@
+{
+	"SourceFiles": [
+		"E:\\unreal-workspace\\Lyra\\LyraStarterGame\\Plugins\\CommonUser\\CommonLoadingScreen\\HostProject\\Plugins\\CommonLoadingScreen\\Source\\CommonLoadingScreen\\CommonLoadingScreen.Build.cs",
+		"E:\\unreal-workspace\\Lyra\\LyraStarterGame\\Plugins\\CommonUser\\CommonLoadingScreen\\HostProject\\Plugins\\CommonLoadingScreen\\Source\\CommonStartupLoadingScreen\\CommonStartupLoadingScreen.Build.cs"
+	],
+	"EngineVersion": "5.4.1"
+}
