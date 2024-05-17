@@ -2,9 +2,12 @@
 
 
 #include "Player/N1PlayerController.h"
+#include "Camera/N1PlayerCameraManager.h"
 
-AN1PlayerController::AN1PlayerController()
+AN1PlayerController::AN1PlayerController(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
+	PlayerCameraManagerClass = AN1PlayerCameraManager::StaticClass();
 }
 
 void AN1PlayerController::PostInitializeComponents()

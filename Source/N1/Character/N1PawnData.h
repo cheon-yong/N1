@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "N1PawnData.generated.h"
 
 class UN1InputConfig;
+class UN1CameraMode;
 
 /**
  * 
@@ -35,7 +35,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Input")
 	TObjectPtr<UN1InputConfig> InputConfig;
 
-	//// Default camera mode used by player controlled pawns.
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Camera")
-	//TSubclassOf<ULyraCameraMode> DefaultCameraMode;
+	// Default camera mode used by player controlled pawns.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Camera")
+	TSubclassOf<UN1CameraMode> DefaultCameraMode;
 };

@@ -5,15 +5,152 @@
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
+#include "N1GameState.h"
+#include "Player/N1PlayerController.h"
+#include "Player/N1PlayerState.h"
+#include "Character/N1Character.h"
+#include "Character/N1PawnData.h"
+#include "Game/N1ExperienceManagerComponent.h"
+#include "Game/N1ExperienceDefinition.h"
+#include "System/N1AssetManager.h"
+#include "N1LogChannels.h"
 
-AN1GameMode::AN1GameMode()
+AN1GameMode::AN1GameMode(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
-	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	GameStateClass = AN1GameState::StaticClass();
+	PlayerControllerClass = AN1PlayerController::StaticClass();
+	PlayerStateClass = AN1PlayerState::StaticClass();
+	DefaultPawnClass = AN1Character::StaticClass();
+}
+
+void AN1GameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::HandleMatchAssignmentIfNotExpectingOne);
+}
+
+void AN1GameMode::HandleMatchAssignmentIfNotExpectingOne()
+{
+	FPrimaryAssetId ExperienceId;
+	UWorld* World = GetWorld();
+	if (!ExperienceId.IsValid())
+	{
+		ExperienceId = FPrimaryAssetId(FPrimaryAssetType("N1ExperienceDefinition"),
+			FName("BP_N1DefaultExperience"));
+	}
+
+	OnMatchAssignmentGiven(ExperienceId);
+}
+
+void AN1GameMode::InitGameState()
+{
+	Super::InitGameState();
+
+	UN1ExperienceManagerComponent* ExperienceManagerComponent = GameState->FindComponentByClass<UN1ExperienceManagerComponent>();
+	check(ExperienceManagerComponent);
+
+	ExperienceManagerComponent->CallOrRegister_OnExperienceLoaded(FOnN1ExperienceLoaded::FDelegate::CreateUObject(this,
+	&ThisClass::OnExperienceLoaded));
+}
+
+void AN1GameMode::OnExperienceLoaded(const UN1ExperienceDefinition* CurrentExperience)
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PC = Cast<APlayerController>(*Iterator);
+		if (PC && PC->GetPawn() == nullptr)
+		{
+			if (PlayerCanRestart(PC))
+			{
+				RestartPlayer(PC);
+			}
+		}
+	}
+}
+
+APawn* AN1GameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
+{
+	UE_LOG(LogN1, Log, TEXT("SpawnDefaultPawnAtTransform_Implementation"));
+	return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
+}
+
+void AN1GameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	if (IsExperienceLoaded())
+	{
+		Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	}
+}
+
+bool AN1GameMode::IsExperienceLoaded() const
+{
+	check(GameState);
+	const UN1ExperienceManagerComponent* ExperienceManagerComponent = GameState->FindComponentByClass<UN1ExperienceManagerComponent>();
+	check(ExperienceManagerComponent);
+	return ExperienceManagerComponent->IsExperienceLoaded();
+}
+
+void AN1GameMode::OnMatchAssignmentGiven(FPrimaryAssetId ExperienceId)
+{
+	check(ExperienceId.IsValid());
+	UN1ExperienceManagerComponent* ExperienceManagerComponent = GameState->FindComponentByClass<UN1ExperienceManagerComponent>();
+	check(ExperienceManagerComponent);
+	ExperienceManagerComponent->ServerSetCurrentExperience(ExperienceId);
+}
+
+UClass* AN1GameMode::GetDefaultPawnClassForController_Implementation(AController* InController)
+{
+	if (const UN1PawnData* PawnData = GetPawnDataForController(InController))
+	{
+		if (PawnData->PawnClass)
+		{
+			return PawnData->PawnClass;
+		}
+	}
+	return Super::GetDefaultPawnClassForController_Implementation(InController);
+}
+
+const UN1PawnData* AN1GameMode::GetPawnDataForController(const AController* InController) const
+{
+	// See if pawn data is already set on the player state
+	if (InController != nullptr)
+	{
+		if (const AN1PlayerState* PS = InController->GetPlayerState<AN1PlayerState>())
+		{
+			if (const UN1PawnData* PawnData = PS->GetPawnData<UN1PawnData>())
+			{
+				return PawnData;
+			}
+		}
+	}
+
+	// If not, fall back to the the default for the current experience
+	check(GameState);
+	UN1ExperienceManagerComponent* ExperienceComponent = GameState->FindComponentByClass<UN1ExperienceManagerComponent>();
+	check(ExperienceComponent);
+
+	if (ExperienceComponent->IsExperienceLoaded())
+	{
+		const UN1ExperienceDefinition* Experience = ExperienceComponent->GetCurrentExperienceChecked();
+		if (Experience->DefaultPawnData != nullptr)
+		{
+			return Experience->DefaultPawnData;
+		}
+
+		// Experience is loaded and there's still no pawn data, fall back to the default for now
+		//return UN1AssetManager::Get().GetDefaultPawnData();
+	}
+
+	// Experience not loaded yet, so there is no pawn data to be had
+	return nullptr;
 }
 
 FTransform AN1GameMode::GetRandomStartTransform() const

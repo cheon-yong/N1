@@ -2,16 +2,18 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "N1Character.generated.h"
+
 
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class UN1PawnExtensionComponent;
+class UN1CameraComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -45,9 +47,8 @@ class AN1Character : public ACharacter
 	UInputAction* LookAction;
 
 public:
-	AN1Character();
+	AN1Character(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
-
 protected:
 
 	/** Called for movement input */
@@ -75,5 +76,13 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "N1|Character")
+	TObjectPtr<UN1PawnExtensionComponent> PawnExtComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "N1|Character")
+	TObjectPtr<UN1CameraComponent> CameraComponent;
+
 };
 

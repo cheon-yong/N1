@@ -15,7 +15,7 @@ class N1_API AN1PlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
-	AN1PlayerController();
+	AN1PlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void PostInitializeComponents() override;
