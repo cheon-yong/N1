@@ -19,6 +19,8 @@
 #include "InputMappingContext.h"
 
 const FName UN1HeroComponent::NAME_ActorFeatureName("Hero");
+const FName UN1HeroComponent::NAME_BindInputsNow("BindInputsNow");
+
 
 UN1HeroComponent::UN1HeroComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -228,6 +230,10 @@ void UN1HeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompone
 			}
 		}
 	}
+
+	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn),
+		NAME_BindInputsNow);
+
 }
 
 void UN1HeroComponent::Input_Move(const FInputActionValue& InputActionValue)
@@ -250,6 +256,7 @@ void UN1HeroComponent::Input_Move(const FInputActionValue& InputActionValue)
 				MovementRotation.RotateVector(FVector::ForwardVector);
 			Pawn->AddMovementInput(MovementDirection, Value.Y);
 		}
+		UE_LOG(LogN1, Log, TEXT("Input_Move[X=%.2f][Y=%.2f]"), Value.X, Value.Y);
 	}
 
 }

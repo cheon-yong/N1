@@ -4,7 +4,11 @@
 #include "Game/N1ExperienceManagerComponent.h"
 #include "System/N1AssetManager.h"
 #include "Game/N1ExperienceDefinition.h"
+#include "Game/N1ExperienceActionSet.h"
 #include <GameFeaturesSubsystemSettings.h>
+#include "GameFeaturesSubsystem.h"
+#include "GameFeatureAction.h"
+
 
 UN1ExperienceManagerComponent::UN1ExperienceManagerComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -95,12 +99,82 @@ void UN1ExperienceManagerComponent::OnExperienceLoadComplete()
 {
 	static int32 OnExperienceLoadComplete_FrameNumber = GFrameNumber;
 
-	OnExperienceFullLoadCompleted();
+	check(LoadState == EN1ExperienceLoadState::Loading);
+	check(CurrentExperience);
+
+	GameFeaturePluginURLs.Reset();
+
+	auto CollectGameFeaturePluginURLs = [This = this](const UPrimaryDataAsset* Context, const TArray<FString>&
+		FeaturePluginList)
+		{
+			for (const FString& PluginName : FeaturePluginList)
+			{
+				FString PluginURL;
+				if (UGameFeaturesSubsystem::Get().GetPluginURLByName(PluginName, PluginURL))
+				{
+					This->GameFeaturePluginURLs.AddUnique(PluginURL);
+				}
+			}
+		};
+
+	CollectGameFeaturePluginURLs(CurrentExperience, CurrentExperience->GameFeaturesToEnable);
+	for (const TObjectPtr<UN1ExperienceActionSet>& ActionSet : CurrentExperience->ActionSets)
+	{
+		if (ActionSet != nullptr)
+		{
+			CollectGameFeaturePluginURLs(ActionSet, ActionSet->GameFeaturesToEnable);
+		}
+	}
+
+	NumGameFeaturePluginsLoading = GameFeaturePluginURLs.Num();
+	if (NumGameFeaturePluginsLoading)
+	{
+		LoadState = EN1ExperienceLoadState::LoadingGameFeatures;
+		for (const FString& PluginURL : GameFeaturePluginURLs)
+		{
+			UGameFeaturesSubsystem::Get().LoadAndActivateGameFeaturePlugin(PluginURL,
+				FGameFeaturePluginLoadComplete::CreateUObject(this, &ThisClass::OnGameFeaturePluginLoadComplete));
+		}
+	}
+	else
+	{
+		OnExperienceFullLoadCompleted();
+	}
+
 }
 
 void UN1ExperienceManagerComponent::OnExperienceFullLoadCompleted()
 {
 	check(LoadState != EN1ExperienceLoadState::Loaded);
+	{
+		LoadState = EN1ExperienceLoadState::ExecutingActions;
+		FGameFeatureActivatingContext Context;
+		{
+			const FWorldContext* ExistingWorldContext = GEngine->GetWorldContextFromWorld(GetWorld());
+			if (ExistingWorldContext)
+			{
+				Context.SetRequiredWorldContextHandle(ExistingWorldContext->ContextHandle);
+			}
+		}
+		auto ActivateListOfActions = [&Context](const TArray<UGameFeatureAction*>& ActionList)
+			{
+				for (UGameFeatureAction* Action : ActionList)
+				{
+					if (Action)
+					{
+						Action->OnGameFeatureRegistering();
+						Action->OnGameFeatureLoading();
+						Action->OnGameFeatureActivating(Context);
+					}
+				}
+			};
+		ActivateListOfActions(CurrentExperience->Actions);
+		for (const TObjectPtr<UN1ExperienceActionSet>& ActionSet : CurrentExperience->ActionSets)
+		{
+			ActivateListOfActions(ActionSet->Actions);
+		}
+	}
+
 	LoadState = EN1ExperienceLoadState::Loaded;
 	OnExperienceLoaded.Broadcast(CurrentExperience);
 	OnExperienceLoaded.Clear();
@@ -111,4 +185,14 @@ const UN1ExperienceDefinition* UN1ExperienceManagerComponent::GetCurrentExperien
 	check(LoadState == EN1ExperienceLoadState::Loaded);
 	check(CurrentExperience != nullptr);
 	return CurrentExperience;
+}
+
+void UN1ExperienceManagerComponent::OnGameFeaturePluginLoadComplete(const UE::GameFeatures::FResult& Result)
+{
+	NumGameFeaturePluginsLoading--;
+	if (NumGameFeaturePluginsLoading == 0)
+	{
+		OnExperienceFullLoadCompleted();
+	}
+
 }

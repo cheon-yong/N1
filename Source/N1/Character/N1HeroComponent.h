@@ -5,7 +5,7 @@
 #include "Components/GameFrameworkInitStateInterface.h"
 #include "Components/PawnComponent.h"
 #include "Input/N1MappableConfigPair.h"
-#include "Input/N1nputMappingContextAndPriority.h"
+#include "GameFeatures/GameFeatureAction_AddContext.h"
 #include "N1HeroComponent.generated.h"
 
 class UN1CameraMode;
@@ -26,6 +26,8 @@ public:
 	virtual void OnRegister() override;
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) final;
+
+	// GameFrameworkInitState
 	virtual FName GetFeatureName() const final { return NAME_ActorFeatureName; }
 	virtual void OnActorInitStateChanged(const FActorInitStateChangedParams& Params) final;
 	virtual bool CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState,
@@ -33,7 +35,11 @@ public:
 	virtual void HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag
 		CurrentState, FGameplayTag DesiredState) final;
 	virtual void CheckDefaultInitialization() final;
+
+	// Camera
 	TSubclassOf<UN1CameraMode> DetermineCameraMode() const;
+
+	// Input
 	void InitializePlayerInput(UInputComponent* PlayerInputComponent);
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_LookMouse(const FInputActionValue& InputActionValue);
@@ -41,6 +47,9 @@ public:
 	/*UPROPERTY(EditAnywhere)
 	TArray<FN1MappableConfigPair> DefaultConfigs;*/
 
+	static const FName NAME_BindInputsNow;
+
 	UPROPERTY(EditAnywhere)
 	TArray<FInputMappingContextAndPriority> DefaultInputMappings;
+
 };

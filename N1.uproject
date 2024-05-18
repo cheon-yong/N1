@@ -14,7 +14,8 @@
 				"GameplayAbilities",
 				"ModularGameplay",
 				"CoreUObject",
-				"EnhancedInput"
+				"EnhancedInput",
+				"GameFeatures"
 			]
 		}
 	],
@@ -36,6 +37,10 @@
 		},
 		{
 			"Name": "CommonUser",
+			"Enabled": true
+		},
+		{
+			"Name": "ShooterCore",
 			"Enabled": true
 		}
 	]

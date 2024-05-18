@@ -12,7 +12,8 @@ public class N1Target : TargetRules
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
 		ExtraModuleNames.AddRange(new string[]{
 			"N1",
-			"CommonUser"
+			"CommonUser",
+			"ShooterCore"
 		});
 	}
 }

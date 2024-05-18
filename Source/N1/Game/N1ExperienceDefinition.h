@@ -9,6 +9,7 @@
 
 class UGameFeatureAction;
 class UN1PawnData;
+class UN1ExperienceActionSet;
 //class ULyraExperienceActionSet;
 
 /**
@@ -51,7 +52,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Actions")
 	TArray<TObjectPtr<UGameFeatureAction>> Actions;
 
-	//// List of additional action sets to compose into this experience
-	//UPROPERTY(EditDefaultsOnly, Category = Gameplay)
-	//TArray<TObjectPtr<ULyraExperienceActionSet>> ActionSets;
+	// List of additional action sets to compose into this experience
+	UPROPERTY(EditDefaultsOnly, Category = Gameplay)
+	TArray<TObjectPtr<UN1ExperienceActionSet>> ActionSets;
 };

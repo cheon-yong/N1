@@ -15,6 +15,7 @@
 #include "Game/N1ExperienceDefinition.h"
 #include "System/N1AssetManager.h"
 #include "N1LogChannels.h"
+#include <Kismet/GameplayStatics.h>
 
 AN1GameMode::AN1GameMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -42,6 +43,14 @@ void AN1GameMode::HandleMatchAssignmentIfNotExpectingOne()
 {
 	FPrimaryAssetId ExperienceId;
 	UWorld* World = GetWorld();
+
+	if (!ExperienceId.IsValid() && UGameplayStatics::HasOption(OptionsString, TEXT("Experience")))
+	{
+		const FString ExperienceFromOptions = UGameplayStatics::ParseOption(OptionsString, TEXT("Experience"));
+		ExperienceId = FPrimaryAssetId(FPrimaryAssetType(UN1ExperienceDefinition::StaticClass()->GetFName()),
+			FName(*ExperienceFromOptions));
+	}
+
 	if (!ExperienceId.IsValid())
 	{
 		ExperienceId = FPrimaryAssetId(FPrimaryAssetType("N1ExperienceDefinition"),

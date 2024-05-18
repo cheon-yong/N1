@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/GameStateComponent.h"
+#include "GameFeaturePluginOperationResult.h"
 #include "N1ExperienceManagerComponent.generated.h"
 
 // forward declaration
@@ -51,6 +52,8 @@ public:
 
 	const UN1ExperienceDefinition* GetCurrentExperienceChecked() const;
 
+	void OnGameFeaturePluginLoadComplete(const UE::GameFeatures::FResult& Result);
+
 public:
 	UPROPERTY()
 	TObjectPtr<const UN1ExperienceDefinition> CurrentExperience;
@@ -58,4 +61,8 @@ public:
 	EN1ExperienceLoadState LoadState = EN1ExperienceLoadState::Unloaded;
 
 	FOnN1ExperienceLoaded OnExperienceLoaded;
+
+	int32 NumGameFeaturePluginsLoading = 0;
+
+	TArray<FString> GameFeaturePluginURLs;
 };
