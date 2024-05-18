@@ -5,6 +5,8 @@
 #include "Camera/N1CameraMode.h"
 #include "N1CameraMode_ThirdPerson.generated.h"
 
+class UCurveVector;
+
 /**
  * 
  */
@@ -15,4 +17,9 @@ class N1_API UN1CameraMode_ThirdPerson : public UN1CameraMode
 	
 public:
 	UN1CameraMode_ThirdPerson(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual void UpdateView(float DeltaTime) override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Third Person")
+	TObjectPtr<const UCurveVector> TargetOffsetCurve;
 };

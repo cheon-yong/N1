@@ -26,6 +26,7 @@ public:
 	virtual void OnRegister() final;
 	virtual void GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView) override;
 	void UpdateCameraModes();
+	AActor* GetTargetActor() const { return GetOwner(); }
 
 	UFUNCTION(BlueprintPure, Category = "N1|Camera")
 	static UN1CameraComponent* FindCameraComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UN1CameraComponent>() : nullptr); }

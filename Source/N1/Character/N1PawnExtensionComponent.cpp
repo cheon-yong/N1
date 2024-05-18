@@ -80,6 +80,7 @@ bool UN1PawnExtensionComponent::CanChangeInitState(UGameFrameworkComponentManage
 				return false;
 			}
 		}
+
 		return true;
 	}
 	if (CurrentState == N1GameplayTags::InitState_DataAvailable && DesiredState == N1GameplayTags::InitState_DataInitialized)

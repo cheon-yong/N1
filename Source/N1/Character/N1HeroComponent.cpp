@@ -77,20 +77,21 @@ bool UN1HeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Manage
 		{
 			return false;
 		}
-		return true;
 
+		return true;
 	}
 	if (CurrentState == N1GameplayTags::InitState_DataAvailable && DesiredState == N1GameplayTags::InitState_DataInitialized)
 	{
 		return PS && Manager->HasFeatureReachedInitState(Pawn,
 			UN1PawnExtensionComponent::NAME_ActorFeatureName, N1GameplayTags::InitState_DataInitialized);
 	}
+
 	if (CurrentState == N1GameplayTags::InitState_DataInitialized && DesiredState == N1GameplayTags::InitState_GameplayReady)
 	{
 		return true;
 	}
-	return false;
 
+	return false;
 }
 
 void UN1HeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
