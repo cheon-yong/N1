@@ -21,8 +21,7 @@ struct FN1InputAction
 {
 	GENERATED_BODY()
 
-	public:
-
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<const UInputAction> InputAction = nullptr;
 

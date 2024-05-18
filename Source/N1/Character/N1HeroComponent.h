@@ -4,10 +4,13 @@
 
 #include "Components/GameFrameworkInitStateInterface.h"
 #include "Components/PawnComponent.h"
+#include "Input/N1MappableConfigPair.h"
+#include "Input/N1nputMappingContextAndPriority.h"
 #include "N1HeroComponent.generated.h"
 
 class UN1CameraMode;
-
+struct FInputActionValue;
+//struct FN1nputMappingContextAndPriority;
 /**
  * 
  */
@@ -31,4 +34,13 @@ public:
 		CurrentState, FGameplayTag DesiredState) final;
 	virtual void CheckDefaultInitialization() final;
 	TSubclassOf<UN1CameraMode> DetermineCameraMode() const;
+	void InitializePlayerInput(UInputComponent* PlayerInputComponent);
+	void Input_Move(const FInputActionValue& InputActionValue);
+	void Input_LookMouse(const FInputActionValue& InputActionValue);
+public:
+	/*UPROPERTY(EditAnywhere)
+	TArray<FN1MappableConfigPair> DefaultConfigs;*/
+
+	UPROPERTY(EditAnywhere)
+	TArray<FInputMappingContextAndPriority> DefaultInputMappings;
 };
