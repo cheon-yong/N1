@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ModularCharacter.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "N1Character.generated.h"
@@ -18,7 +19,7 @@ class UN1CameraComponent;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AN1Character : public ACharacter
+class AN1Character : public AModularCharacter
 {
 	GENERATED_BODY()
 

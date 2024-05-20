@@ -53,6 +53,6 @@ public:
 	TArray<TObjectPtr<UGameFeatureAction>> Actions;
 
 	// List of additional action sets to compose into this experience
-	UPROPERTY(EditDefaultsOnly, Category = Gameplay)
+	UPROPERTY(EditDefaultsOnly, Instanced, Category = Gameplay)
 	TArray<TObjectPtr<UN1ExperienceActionSet>> ActionSets;
 };

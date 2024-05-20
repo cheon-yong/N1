@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "ModularPlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "N1PlayerController.generated.h"
 
@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class N1_API AN1PlayerController : public APlayerController
+class N1_API AN1PlayerController : public AModularPlayerController
 {
 	GENERATED_BODY()
 	

@@ -19,7 +19,8 @@ public class N1 : ModuleRules
 			"Niagara",
 			"NavigationSystem",
 			"AIModule",
-			"GameplayTasks"
+			"GameplayTasks",
+			"ModularGameplayActors"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {

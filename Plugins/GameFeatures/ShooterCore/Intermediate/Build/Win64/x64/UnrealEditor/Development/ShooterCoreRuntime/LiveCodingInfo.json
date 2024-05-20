@@ -1,5 +1,8 @@
 {
 	"RemapUnityFiles": 
 	{
+		"Module.ShooterCoreRuntime.cpp.obj": [
+			"ShooterCoreRuntimeModule.cpp.obj"
+		]
 	}
 }
