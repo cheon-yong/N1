@@ -6,8 +6,18 @@
 #include "GameFramework/Character.h"
 
 UN1PawnComponent_CharacterParts::UN1PawnComponent_CharacterParts(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer), CharacterPartList(this)
+	:Super(ObjectInitializer)
 {
+}
+
+void UN1PawnComponent_CharacterParts::OnRegister()
+{
+	Super::OnRegister();
+
+	if (!IsTemplate())
+	{
+		CharacterPartList.SetOwnerComponent(this);
+	}
 }
 
 FN1CharacterPartHandle UN1PawnComponent_CharacterParts::AddCharacterPart(const FN1CharacterPart& NewPart)

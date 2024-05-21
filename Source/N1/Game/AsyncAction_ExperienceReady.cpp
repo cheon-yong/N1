@@ -2,6 +2,9 @@
 
 
 #include "Game/AsyncAction_ExperienceReady.h"
+
+#include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "N1ExperienceManagerComponent.h"
 #include "N1ExperienceDefinition.h"
 
@@ -13,8 +16,7 @@ UAsyncAction_ExperienceReady::UAsyncAction_ExperienceReady(const FObjectInitiali
 UAsyncAction_ExperienceReady* UAsyncAction_ExperienceReady::WaitForExperienceReady(UObject* WorldContextObject)
 {
 	UAsyncAction_ExperienceReady* Action = nullptr;
-	if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject,
-		EGetWorldErrorMode::LogAndReturnNull))
+	if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
 	{
 		Action = NewObject<UAsyncAction_ExperienceReady>();
 		Action->WorldPtr = World;
@@ -83,5 +85,6 @@ void UAsyncAction_ExperienceReady::Step3_HandleExperienceLoaded(const UN1Experie
 void UAsyncAction_ExperienceReady::Step4_BroadcastReady()
 {
 	OnReady.Broadcast();
+
 	SetReadyToDestroy();
 }

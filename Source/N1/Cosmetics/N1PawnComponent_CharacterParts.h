@@ -29,8 +29,8 @@ struct FN1CharacterPartList
 	
 	FN1CharacterPartList()
 		: OwnerComponent(nullptr) {}
-	FN1CharacterPartList(UN1PawnComponent_CharacterParts* InOwnerComponent)
-		: OwnerComponent(InOwnerComponent) {}
+
+public:
 
 	FN1CharacterPartHandle AddEntry(FN1CharacterPart NewPart);
 
@@ -41,6 +41,11 @@ struct FN1CharacterPartList
 	void RemoveEntry(FN1CharacterPartHandle Handle);
 
 	void DestroyActorForEntry(FN1AppliedCharacterPartEntry& Entry);
+
+	void SetOwnerComponent(UN1PawnComponent_CharacterParts* InOwnerComponent)
+	{
+		OwnerComponent = InOwnerComponent;
+	}
 
 	UPROPERTY()
 	TArray<FN1AppliedCharacterPartEntry> Entries;
@@ -57,6 +62,8 @@ class UN1PawnComponent_CharacterParts : public UPawnComponent
 	
 public:
 	UN1PawnComponent_CharacterParts(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual void OnRegister() override;
 
 	FN1CharacterPartHandle AddCharacterPart(const FN1CharacterPart& NewPart);
 
