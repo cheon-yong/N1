@@ -3,6 +3,9 @@
 #pragma once
 
 #include "UObject/Object.h"
+#include "UObject/UObjectGlobals.h"
+#include "Containers/Array.h"
+#include "N1EquipmentDefinition.h"
 #include "N1EquipmentInstance.generated.h"
 
 /**
@@ -15,4 +18,31 @@ class N1_API UN1EquipmentInstance : public UObject
 	
 public:
 	UN1EquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Equipment, meta = (DisplayName = "OnEquipped"))
+	void K2_OnEquipped();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = Equipment, meta = (DisplayName = "OnUnequipped"))
+	void K2_OnUnequipped();
+	
+	virtual void OnEquipped();
+	
+	virtual void OnUnequipped();
+
+	void SpawnEquipmentActors(const TArray<FN1EquipmentActorToSpawn>& ActorsToSpawn);
+
+	void DestroyEquipmentActors();
+
+	UFUNCTION(BlueprintPure, Category = Equipment)
+	APawn* GetPawn() const;
+
+	UFUNCTION(BlueprintPure, Category = Equipment, meta = (DeterminesOutputType = PawnType))
+	APawn* GetTypedPawn(TSubclassOf<APawn> PawnType) const;
+
+public:
+	UPROPERTY()
+	TObjectPtr<UObject> Instigator;
+
+	UPROPERTY()
+	TArray<TObjectPtr<AActor>> SpawnedActors;
 };

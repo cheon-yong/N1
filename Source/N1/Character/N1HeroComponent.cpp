@@ -256,7 +256,6 @@ void UN1HeroComponent::Input_Move(const FInputActionValue& InputActionValue)
 				MovementRotation.RotateVector(FVector::ForwardVector);
 			Pawn->AddMovementInput(MovementDirection, Value.Y);
 		}
-		UE_LOG(LogN1, Log, TEXT("Input_Move[X=%.2f][Y=%.2f]"), Value.X, Value.Y);
 	}
 
 }

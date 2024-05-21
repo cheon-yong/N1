@@ -29,6 +29,8 @@ struct FN1AnimLayerSelectionSet
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UAnimInstance> DefaultLayer;
+
+	TSubclassOf<UAnimInstance> SelectBestLayer(const FGameplayTagContainer& CosmeticTags) const;
 };
 
 
