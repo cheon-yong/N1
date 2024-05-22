@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "N1Character.h"
-#include "Engine/LocalPlayer.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -11,7 +11,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Character/N1PawnExtensionComponent.h"
+#include "Player/N1PlayerState.h"
 #include "Camera/N1CameraComponent.h"
+#include "AbilitySystem/N1AbilitySystemComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,6 +54,21 @@ AN1Character::AN1Character(const FObjectInitializer& ObjectInitializer)
 	CameraComponent = CreateDefaultSubobject<UN1CameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetRelativeLocation(FVector(-300.0f, 0.0f, 75.0f));
 
+}
+
+UN1AbilitySystemComponent* AN1Character::GetN1AbilitySystemComponent() const
+{
+	return Cast<UN1AbilitySystemComponent>(GetAbilitySystemComponent());
+}
+
+UAbilitySystemComponent* AN1Character::GetAbilitySystemComponent() const
+{
+	if (PawnExtComponent == nullptr)
+	{
+		return nullptr;
+	}
+
+	return PawnExtComponent->GetN1AbilitySystemComponent();
 }
 
 void AN1Character::BeginPlay()

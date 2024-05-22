@@ -7,7 +7,7 @@
 
 class UN1InputConfig;
 class UN1CameraMode;
-
+class UN1AbilitySet;
 /**
  * 
  */
@@ -24,8 +24,8 @@ public:
 	TSubclassOf<APawn> PawnClass;
 
 	//// Ability sets to grant to this pawn's ability system.
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Abilities")
-	//TArray<TObjectPtr<ULyraAbilitySet>> AbilitySets;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Abilities")
+	TArray<TObjectPtr<UN1AbilitySet>> AbilitySets;
 
 	//// What mapping of ability tags to use for actions taking by this pawn
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Abilities")

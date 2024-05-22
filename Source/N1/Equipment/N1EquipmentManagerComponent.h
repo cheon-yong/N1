@@ -3,10 +3,14 @@
 #pragma once
 
 #include "Components/PawnComponent.h"
+#include <AbilitySystem/N1AbilitySet.h>
+
 #include "N1EquipmentManagerComponent.generated.h"
+
 
 class UN1EquipmentDefinition;
 class UN1EquipmentInstance;
+class UN1AbilitySystemComponent;
 /**
  * 
  */
@@ -21,6 +25,9 @@ struct FN1AppliedEquipmentEntry
 
 	UPROPERTY()
 	TObjectPtr<UN1EquipmentInstance> Instance = nullptr;
+
+	UPROPERTY()
+	FN1AbilitySet_GrantedHandles GrantedHandles;
 };
 
 
@@ -36,6 +43,9 @@ struct FN1EquipmentList
 	UN1EquipmentInstance* AddEntry(TSubclassOf<UN1EquipmentDefinition> EquipmentDefinition);
 	
 	void RemoveEntry(UN1EquipmentInstance* Instance);
+
+	UN1AbilitySystemComponent* GetAbilitySystemComponent() const;
+
 
 	UPROPERTY()
 	TArray<FN1AppliedEquipmentEntry> Entries;
@@ -56,6 +66,9 @@ public:
 	UN1EquipmentInstance* EquipItem(TSubclassOf<UN1EquipmentDefinition> EquipmentDefinition);
 	
 	void UnequipItem(UN1EquipmentInstance* ItemInstance);
+
+	UFUNCTION(BlueprintCallable)
+	TArray<UN1EquipmentInstance*> GetEquipmentInstancesOfType(TSubclassOf<UN1EquipmentInstance> InstanceType) const;
 
 public:
 	UPROPERTY()

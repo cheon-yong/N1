@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "N1PlayerController.generated.h"
 
+class AN1PlayerState;
+class UN1AbilitySystemComponent;
 /**
  * 
  */
@@ -19,7 +21,17 @@ public:
 
 protected:
 	virtual void PostInitializeComponents() override;
+
 	virtual void PostNetInit() override;
+
 	virtual void BeginPlay() override;
+
 	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
+
+	AN1PlayerState* GetN1PlayerState() const;
+
+	UN1AbilitySystemComponent* GetN1AbilitySystemComponent() const;
+
 };

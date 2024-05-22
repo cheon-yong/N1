@@ -4,15 +4,27 @@
 #include "Player/N1PlayerState.h"
 #include "Game/N1ExperienceManagerComponent.h"
 #include <Game/N1GameMode.h>
+#include "AbilitySystem/N1AbilitySystemComponent.h"
+#include <AbilitySystem/N1AbilitySet.h>
+#include "Character/N1PawnData.h"
 
 AN1PlayerState::AN1PlayerState(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	AbilitySystemComponent = ObjectInitializer.CreateDefaultSubobject<UN1AbilitySystemComponent>(this, TEXT("AbilitySystemComponent"));
 }
 
 void AN1PlayerState::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	check(AbilitySystemComponent);
+	{
+		FGameplayAbilityActorInfo* ActorInfo = AbilitySystemComponent->AbilityActorInfo.Get();
+		check(ActorInfo->OwnerActor == this);
+		check(ActorInfo->OwnerActor == ActorInfo->AvatarActor);
+	}
+	AbilitySystemComponent->InitAbilityActorInfo(this, GetPawn());
 
 	const AGameStateBase* GameState = GetWorld()->GetGameState();
 	check(GameState);
@@ -38,4 +50,11 @@ void AN1PlayerState::SetPawnData(const UN1PawnData* InPawnData)
 	check(!PawnData);
 
 	PawnData = InPawnData;
+	for (UN1AbilitySet* AbilitySet : PawnData->AbilitySets)
+	{
+		if (AbilitySet)
+		{
+			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, nullptr);
+		}
+	}
 }

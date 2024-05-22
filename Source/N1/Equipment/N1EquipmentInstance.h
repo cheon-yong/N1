@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = Equipment, meta = (DeterminesOutputType = PawnType))
 	APawn* GetTypedPawn(TSubclassOf<APawn> PawnType) const;
 
+	UFUNCTION(BlueprintPure, Category = Equipment)
+	TArray<AActor*> GetSpawnedActors() const { return SpawnedActors; }
+
 public:
 	UPROPERTY()
 	TObjectPtr<UObject> Instigator;

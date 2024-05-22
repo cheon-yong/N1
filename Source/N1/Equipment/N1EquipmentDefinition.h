@@ -10,6 +10,7 @@
 #include "N1EquipmentDefinition.generated.h"
 
 class UN1EquipmentInstance;
+class UN1AbilitySet;
 
 USTRUCT()
 struct FN1EquipmentActorToSpawn
@@ -42,5 +43,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = Equipment)
 	TArray<FN1EquipmentActorToSpawn> ActorsToSpawn;
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = Equipment)
+	TArray<TObjectPtr<UN1AbilitySet>> AbilitySetsToGrant;
 };

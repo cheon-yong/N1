@@ -7,6 +7,7 @@
 #include "N1PawnExtensionComponent.generated.h"
 
 class UN1PawnData;
+class UN1AbilitySystemComponent;
 
 /**
  * 
@@ -41,7 +42,17 @@ public:
 	template <class T>
 	const T* GetPawnData() const { return Cast<T>(PawnData); }
 
+	void InitializeAbilitySystem(UN1AbilitySystemComponent* InASC, AActor* InOwnerActor);
+	
+	void UninitializeAbilitySystem();
+
+	UFUNCTION(BlueprintPure, Category = "N1|Pawn")
+	UN1AbilitySystemComponent* GetN1AbilitySystemComponent() const { return AbilitySystemComponent; }
+
 public:
 	UPROPERTY(EditInstanceOnly, Category = "N1|Pawn")
 	TObjectPtr<const UN1PawnData> PawnData;
+
+	UPROPERTY()
+	TObjectPtr<UN1AbilitySystemComponent> AbilitySystemComponent;
 };

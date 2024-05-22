@@ -17,6 +17,7 @@
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
+#include "AbilitySystem/N1AbilitySystemComponent.h"
 
 const FName UN1HeroComponent::NAME_ActorFeatureName("Hero");
 const FName UN1HeroComponent::NAME_BindInputsNow("BindInputsNow");
@@ -118,7 +119,9 @@ void UN1HeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Man
 		if (UN1PawnExtensionComponent* PawnExtComp = UN1PawnExtensionComponent::FindPawnExtensionComponent(Pawn))
 		{
 			PawnData = PawnExtComp->GetPawnData<UN1PawnData>();
+			PawnExtComp->InitializeAbilitySystem(PS->GetN1AbilitySystemComponent(), PS);
 		}
+
 		if (bIsLocallyControlled && PawnData)
 		{
 			if (UN1CameraComponent* CameraComponent = UN1CameraComponent::FindCameraComponent(Pawn))
@@ -221,6 +224,9 @@ void UN1HeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompone
 					// Add the key mappings that may have been set by the player
 					IC->AddInputMappings(InputConfig, Subsystem);
 
+					TArray<uint32> BindHandles;
+					IC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, BindHandles);
+
 					// This is where we actually bind and input action to a gameplay tag, which means that Gameplay Ability Blueprints will
 					// be triggered directly by these input actions Triggered events. 
 					
@@ -234,6 +240,34 @@ void UN1HeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompone
 	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn),
 		NAME_BindInputsNow);
 
+}
+
+void UN1HeroComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	if (const APawn* Pawn = GetPawn<APawn>())
+	{
+		if (const UN1PawnExtensionComponent* PawnExtComp = UN1PawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+		{
+			if (UN1AbilitySystemComponent* ASC = PawnExtComp->GetN1AbilitySystemComponent())
+			{
+				ASC->AbilityInputTagPressed(InputTag);
+			}
+		}
+	}
+}
+
+void UN1HeroComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	if (const APawn* Pawn = GetPawn<APawn>())
+	{
+		if (const UN1PawnExtensionComponent* PawnExtComp = UN1PawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+		{
+			if (UN1AbilitySystemComponent* ASC = PawnExtComp->GetN1AbilitySystemComponent())
+			{
+				ASC->AbilityInputTagReleased(InputTag);
+			}
+		}
+	}
 }
 
 void UN1HeroComponent::Input_Move(const FInputActionValue& InputActionValue)

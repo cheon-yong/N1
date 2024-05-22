@@ -19,7 +19,6 @@ void UN1EquipmentInstance::OnUnequipped()
 	K2_OnUnequipped();
 }
 
-PRAGMA_DISABLE_OPTIMIZATION
 void UN1EquipmentInstance::SpawnEquipmentActors(const TArray<FN1EquipmentActorToSpawn>& ActorsToSpawn)
 {
 	if (APawn* OwningPawn = GetPawn())
@@ -40,7 +39,6 @@ void UN1EquipmentInstance::SpawnEquipmentActors(const TArray<FN1EquipmentActorTo
 		}
 	}
 }
-PRAGMA_ENABLE_OPTIMIZATION
 
 void UN1EquipmentInstance::DestroyEquipmentActors()
 {

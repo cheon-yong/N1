@@ -9,6 +9,7 @@
 // forward declaration
 class UN1ExperienceDefinition;
 class UN1PawnData;
+class UN1AbilitySystemComponent;
 
 /**
  * 
@@ -30,8 +31,12 @@ public:
 
 	void SetPawnData(const UN1PawnData* InPawnData);
 
+	UN1AbilitySystemComponent* GetN1AbilitySystemComponent() const { return AbilitySystemComponent; }
 
 public:
 	UPROPERTY()
 	TObjectPtr<const UN1PawnData> PawnData;
+
+	UPROPERTY(VisibleAnywhere, Category = "N1|PlayerState")
+	TObjectPtr<UN1AbilitySystemComponent> AbilitySystemComponent;
 };

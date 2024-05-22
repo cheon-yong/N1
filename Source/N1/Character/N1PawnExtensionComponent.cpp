@@ -6,6 +6,7 @@
 #include "Character/N1PawnExtensionComponent.h"
 #include "N1LogChannels.h"
 #include "N1GameplayTags.h"
+#include "AbilitySystem/N1AbilitySystemComponent.h"
 
 const FName UN1PawnExtensionComponent::NAME_ActorFeatureName("PawnExtension");
 
@@ -127,4 +128,32 @@ void UN1PawnExtensionComponent::SetPawnData(const UN1PawnData* InPawnData)
 void UN1PawnExtensionComponent::SetupPlayerInputComponent()
 {
 	CheckDefaultInitialization();
+}
+
+void UN1PawnExtensionComponent::InitializeAbilitySystem(UN1AbilitySystemComponent* InASC, AActor* InOwnerActor)
+{
+	check(InASC && InOwnerActor);
+	if (AbilitySystemComponent == InASC)
+	{
+		return;
+	}
+	if (AbilitySystemComponent)
+	{
+		UninitializeAbilitySystem();
+	}
+	APawn* Pawn = GetPawnChecked<APawn>();
+	AActor* ExistingAvatar = InASC->GetAvatarActor();
+	check(!ExistingAvatar);
+	AbilitySystemComponent = InASC;
+	AbilitySystemComponent->InitAbilityActorInfo(InOwnerActor, Pawn);
+}
+
+void UN1PawnExtensionComponent::UninitializeAbilitySystem()
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	AbilitySystemComponent = nullptr;
 }
