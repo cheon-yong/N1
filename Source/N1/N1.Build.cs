@@ -20,7 +20,11 @@ public class N1 : ModuleRules
 			"NavigationSystem",
 			"AIModule",
 			"GameplayTasks",
-			"ModularGameplayActors"
+			"ModularGameplayActors",
+			"CommonUser",
+			"CommonGame",
+			"CommonUI",
+			"UIExtension"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
@@ -28,7 +32,7 @@ public class N1 : ModuleRules
 			"GameplayAbilities",
 			"GameplayTasks",
 			"GameplayTags",
-			"CommonUser"
+			
 		});
 	}
 }

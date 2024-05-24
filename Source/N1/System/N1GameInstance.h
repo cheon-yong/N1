@@ -2,15 +2,14 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Engine/GameInstance.h"
+#include "CommonGameInstance.h"
 #include "N1GameInstance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class N1_API UN1GameInstance : public UGameInstance
+class N1_API UN1GameInstance : public UCommonGameInstance
 {
 	GENERATED_BODY()
 public:

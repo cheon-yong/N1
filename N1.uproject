@@ -15,7 +15,8 @@
 				"ModularGameplay",
 				"CoreUObject",
 				"EnhancedInput",
-				"GameFeatures"
+				"GameFeatures",
+				"CommonGame"
 			]
 		}
 	],
@@ -37,6 +38,14 @@
 		},
 		{
 			"Name": "CommonUser",
+			"Enabled": true
+		},
+		{
+			"Name": "CommonGame",
+			"Enabled": true
+		},
+		{
+			"Name": "UIExtension",
 			"Enabled": true
 		},
 		{

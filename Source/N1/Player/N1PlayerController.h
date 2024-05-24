@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ModularPlayerController.h"
+#include "CommonPlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "N1PlayerController.generated.h"
 
@@ -12,7 +12,7 @@ class UN1AbilitySystemComponent;
  * 
  */
 UCLASS()
-class N1_API AN1PlayerController : public AModularPlayerController
+class N1_API AN1PlayerController : public ACommonPlayerController
 {
 	GENERATED_BODY()
 	

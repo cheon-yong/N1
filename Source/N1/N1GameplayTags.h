@@ -60,6 +60,9 @@ namespace N1GameplayTags
 	// Event
 	N1_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Movement_WeaponFire);
 
+	// Gameaply Cue
+	N1_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Weapon_Pistol);
+
 	// These are mappings from MovementMode enums to GameplayTags associated with those enums (below)
 	N1_API	extern const TMap<uint8, FGameplayTag> MovementModeTagMap;
 	N1_API	extern const TMap<uint8, FGameplayTag> CustomMovementModeTagMap;
@@ -72,4 +75,10 @@ namespace N1GameplayTags
 	N1_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Flying);
 
 	N1_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Custom);
+
+	// UI
+	N1_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Game);
+	N1_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_GameMenu);
+	N1_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Menu);
+	N1_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Layer_Modal);
 }
