@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "N1GameMode.h"
+
 #include "Character/N1Character.h"
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/PlayerStart.h"
@@ -16,6 +17,7 @@
 #include "System/N1AssetManager.h"
 #include "N1LogChannels.h"
 #include <Kismet/GameplayStatics.h>
+#include "UI/N1HUD.h"
 
 AN1GameMode::AN1GameMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -30,6 +32,7 @@ AN1GameMode::AN1GameMode(const FObjectInitializer& ObjectInitializer)
 	PlayerControllerClass = AN1PlayerController::StaticClass();
 	PlayerStateClass = AN1PlayerState::StaticClass();
 	DefaultPawnClass = AN1Character::StaticClass();
+	HUDClass = AN1HUD::StaticClass();
 }
 
 void AN1GameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)

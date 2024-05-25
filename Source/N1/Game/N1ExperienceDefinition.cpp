@@ -60,3 +60,17 @@ EDataValidationResult UN1ExperienceDefinition::IsDataValid(FDataValidationContex
 
 	return Result;
 }
+
+#if WITH_EDITORONLY_DATA
+void UN1ExperienceDefinition::UpdateAssetBundleData()
+{
+	Super::UpdateAssetBundleData();
+	for (UGameFeatureAction* Action : Actions)
+	{
+		if (Action)
+		{
+			Action->AddAdditionalAssetBundleData(AssetBundleData);
+		}
+	}
+}
+#endif

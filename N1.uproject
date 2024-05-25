@@ -16,7 +16,8 @@
 				"CoreUObject",
 				"EnhancedInput",
 				"GameFeatures",
-				"CommonGame"
+				"CommonGame",
+				"CommonUI"
 			]
 		}
 	],

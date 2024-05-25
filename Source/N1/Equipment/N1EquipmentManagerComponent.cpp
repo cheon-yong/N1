@@ -46,6 +46,21 @@ TArray<UN1EquipmentInstance*> UN1EquipmentManagerComponent::GetEquipmentInstance
 	return Results;
 }
 
+UN1EquipmentInstance* UN1EquipmentManagerComponent::GetFirstInstanceOfType(TSubclassOf<ULyraCloneEquipmentInstance> InstanceType)
+{
+	for (FN1AppliedEquipmentEntry& Entry : EquipmentList.Entries)
+	{
+		if (UN1EquipmentInstance* Instance = Entry.Instance)
+		{
+			if (Instance->IsA(InstanceType))
+			{
+				return Instance;
+			}
+		}
+	}
+	return nullptr;
+}
+
 UN1EquipmentInstance* FN1EquipmentList::AddEntry(TSubclassOf<UN1EquipmentDefinition> EquipmentDefinition)
 {
 	UN1EquipmentInstance* Result = nullptr;

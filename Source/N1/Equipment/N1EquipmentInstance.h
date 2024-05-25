@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = Equipment)
 	TArray<AActor*> GetSpawnedActors() const { return SpawnedActors; }
 
+	UFUNCTION(BlueprintPure, Category = Equipment)
+	UObject* GetInstigator() const { return Instigator; }
+
 public:
 	UPROPERTY()
 	TObjectPtr<UObject> Instigator;

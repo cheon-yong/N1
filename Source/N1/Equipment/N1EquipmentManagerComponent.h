@@ -70,6 +70,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<UN1EquipmentInstance*> GetEquipmentInstancesOfType(TSubclassOf<UN1EquipmentInstance> InstanceType) const;
 
+	UN1EquipmentInstance* GetFirstInstanceOfType(TSubclassOf<ULyraCloneEquipmentInstance> InstanceType);
+	template <typename T>
+	T* GetFirstInstanceOfType()
+	{
+		return (T*)GetFirstInstanceOfType(T::StaticClass());
+	}
 public:
 	UPROPERTY()
 	FN1EquipmentList EquipmentList;

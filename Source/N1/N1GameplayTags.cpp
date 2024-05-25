@@ -79,6 +79,8 @@ namespace N1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(UI_Layer_Menu, "UI.Layer.Menu", "");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(UI_Layer_Modal, "UI.Layer.Modal", "");
 	
+	// HUD
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(HUD_Slot_Reticle, "HUD.Slot.Reticle", "");
 
 	// Unreal Movement Modes
 	const TMap<uint8, FGameplayTag> MovementModeTagMap =

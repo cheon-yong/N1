@@ -29,11 +29,11 @@ public:
 #endif
 //	//~End of UObject interface
 //
-//	//~UPrimaryDataAsset interface
-//#if WITH_EDITORONLY_DATA
-//	virtual void UpdateAssetBundleData() override;
-//#endif
-//	//~End of UPrimaryDataAsset interface
+	//~UPrimaryDataAsset interface
+#if WITH_EDITORONLY_DATA
+	virtual void UpdateAssetBundleData() override;
+#endif
+	//~End of UPrimaryDataAsset interface
 
 
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UIExtensionSystem.h"
 #include "CommonActivatableWidget.h"
 #include "GameplayTagContainer.h"
 #include "GameFeatureAction_WorldAction.h"
@@ -16,9 +17,10 @@ struct FN1HUDLayoutRequest
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, Category = UI)
+	UPROPERTY(EditAnywhere, Category = UI, meta=(AssetBundles="Client"))
 	TSoftClassPtr<UCommonActivatableWidget> LayoutClass;
-	UPROPERTY(EditAnywhere, Category = UI)
+
+	UPROPERTY(EditAnywhere, Category = UI, meta=(Categories="UI"))
 	FGameplayTag LayerID;
 };
 
@@ -27,9 +29,10 @@ struct FN1HUDElementEntry
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, Category = UI)
+	UPROPERTY(EditAnywhere, Category = UI, meta = (AssetBundles = "Client"))
 	TSoftClassPtr<UUserWidget> WidgetClass;
-	UPROPERTY(EditAnywhere, Category = UI)
+
+	UPROPERTY(EditAnywhere, Category = UI, meta = (Categories = "UI"))
 	FGameplayTag SlotID;
 };
 
@@ -67,6 +70,7 @@ public:
 	TMap<FGameFeatureStateChangeContext, FPerContextData> ContextData;
 	UPROPERTY(EditAnywhere, Category = UI)
 	TArray<FN1HUDLayoutRequest> Layout;
+
 	UPROPERTY(EditAnywhere, Category = UI)
 	TArray<FN1HUDElementEntry> Widgets;
 };

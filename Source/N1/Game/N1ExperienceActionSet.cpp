@@ -7,3 +7,17 @@
 UN1ExperienceActionSet::UN1ExperienceActionSet() : Super()
 {
 }
+
+#if WITH_EDITORONLY_DATA
+void UN1ExperienceActionSet::UpdateAssetBundleData()
+{
+	Super::UpdateAssetBundleData();
+	for (UGameFeatureAction* Action : Actions)
+	{
+		if (Action)
+		{
+			Action->AddAdditionalAssetBundleData(AssetBundleData);
+		}
+	}
+}
+#endif
