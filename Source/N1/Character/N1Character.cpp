@@ -4,6 +4,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Character/N1CharacterMovementComponent.h"
+#include "Character/N1HealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -54,6 +55,11 @@ AN1Character::AN1Character(const FObjectInitializer& ObjectInitializer)
 
 	CameraComponent = CreateDefaultSubobject<UN1CameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetRelativeLocation(FVector(-300.0f, 0.0f, 75.0f));
+
+	// Health Component
+	HealthComponent = CreateDefaultSubobject<UN1HealthComponent>(TEXT("HealthComponent"));
+	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
+	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
 
 	// Character Movement Component
 	UN1CharacterMovementComponent* N1MoveComp = CastChecked<UN1CharacterMovementComponent>(GetCharacterMovement());
@@ -114,9 +120,62 @@ void AN1Character::PostNetInit()
 	Super::PostNetInit();
 }
 
+void AN1Character::DisableMovementAndCollision()
+{
+	if (Controller)
+	{
+		Controller->SetIgnoreMoveInput(true);
+	}
+
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	check(CapsuleComp);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	UN1CharacterMovementComponent* MoveComp = CastChecked<UN1CharacterMovementComponent>(GetCharacterMovement());
+	MoveComp->StopMovementImmediately();
+	MoveComp->DisableMovement();
+}
+
+void AN1Character::DestroyDueToDeath()
+{
+	K2_OnDeathFinished();
+
+	UninitAndDestroy();
+}
+
+void AN1Character::UninitAndDestroy()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(0.1f);
+	}
+
+	// Uninitialize the ASC if we're still the avatar actor (otherwise another pawn already did it when they became the avatar actor)
+	if (UN1AbilitySystemComponent* ASC = GetN1AbilitySystemComponent())
+	{
+		if (ASC->GetAvatarActor() == this)
+		{
+			PawnExtComponent->UninitializeAbilitySystem();
+		}
+	}
+
+	SetActorHiddenInGame(true);
+}
+
+void AN1Character::OnDeathStarted(AActor* OwningActor)
+{
+	DisableMovementAndCollision();
+}
+
+void AN1Character::OnDeathFinished(AActor* OwningActor)
+{
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::DestroyDueToDeath);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
-
 void AN1Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
