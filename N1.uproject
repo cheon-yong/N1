@@ -50,6 +50,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "GameplayMessageRouter",
+			"Enabled": true
+		},
+		{
 			"Name": "ShooterCore",
 			"Enabled": true
 		},
