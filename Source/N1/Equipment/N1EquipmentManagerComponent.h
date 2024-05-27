@@ -70,7 +70,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<UN1EquipmentInstance*> GetEquipmentInstancesOfType(TSubclassOf<UN1EquipmentInstance> InstanceType) const;
 
-	UN1EquipmentInstance* GetFirstInstanceOfType(TSubclassOf<ULyraCloneEquipmentInstance> InstanceType);
+	UN1EquipmentInstance* GetFirstInstanceOfType(TSubclassOf<UN1EquipmentInstance> InstanceType);
 	template <typename T>
 	T* GetFirstInstanceOfType()
 	{

@@ -46,7 +46,7 @@ TArray<UN1EquipmentInstance*> UN1EquipmentManagerComponent::GetEquipmentInstance
 	return Results;
 }
 
-UN1EquipmentInstance* UN1EquipmentManagerComponent::GetFirstInstanceOfType(TSubclassOf<ULyraCloneEquipmentInstance> InstanceType)
+UN1EquipmentInstance* UN1EquipmentManagerComponent::GetFirstInstanceOfType(TSubclassOf<UN1EquipmentInstance> InstanceType)
 {
 	for (FN1AppliedEquipmentEntry& Entry : EquipmentList.Entries)
 	{

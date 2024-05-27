@@ -9,7 +9,6 @@
 
 #include "N1Character.generated.h"
 
-
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;

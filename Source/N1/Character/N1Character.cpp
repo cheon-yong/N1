@@ -3,6 +3,7 @@
 #include "N1Character.h"
 
 #include "Camera/CameraComponent.h"
+#include "Character/N1CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -21,7 +22,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 // AN1Character
 
 AN1Character::AN1Character(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UN1CharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bStartWithTickEnabled = false;
 	PrimaryActorTick.bCanEverTick = false;
@@ -33,7 +34,7 @@ AN1Character::AN1Character(const FObjectInitializer& ObjectInitializer)
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
@@ -54,6 +55,21 @@ AN1Character::AN1Character(const FObjectInitializer& ObjectInitializer)
 	CameraComponent = CreateDefaultSubobject<UN1CameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetRelativeLocation(FVector(-300.0f, 0.0f, 75.0f));
 
+	// Character Movement Component
+	UN1CharacterMovementComponent* N1MoveComp = CastChecked<UN1CharacterMovementComponent>(GetCharacterMovement());
+	N1MoveComp->GravityScale = 1.0f;
+	N1MoveComp->MaxAcceleration = 2400.0f;
+	N1MoveComp->BrakingFrictionFactor = 1.0f;
+	N1MoveComp->BrakingFriction = 6.0f;
+	N1MoveComp->GroundFriction = 8.0f;
+	N1MoveComp->BrakingDecelerationWalking = 1400.0f;
+	N1MoveComp->bUseControllerDesiredRotation = false;
+	N1MoveComp->bOrientRotationToMovement = false;
+	N1MoveComp->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
+	N1MoveComp->bAllowPhysicsRotationDuringAnimRootMotion = false;
+	N1MoveComp->GetNavAgentPropertiesRef().bCanCrouch = true;
+	N1MoveComp->bCanWalkOffLedgesWhenCrouching = true;
+	N1MoveComp->SetCrouchedHalfHeight(65.0f);
 }
 
 UN1AbilitySystemComponent* AN1Character::GetN1AbilitySystemComponent() const
