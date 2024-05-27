@@ -2,14 +2,18 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Engine/AssetManager.h"
+#include "Templates/SubclassOf.h"
 #include "N1AssetManager.generated.h"
+
+class UN1GameData;
+class UN1PawnData;
+
 
 /**
  * 
  */
-UCLASS()
+UCLASS(Config = Game)
 class N1_API UN1AssetManager : public UAssetManager
 {
 	GENERATED_BODY()
@@ -30,13 +34,45 @@ public:
 	static AssetType* GetAsset(const TSoftObjectPtr<AssetType>& AssetPointer, bool bKeepInMemory = true);
 
 	template <typename AssetType>
-	static TSubclassOf<AssetType> GetSubclass(const TSoftObjectPtr<AssetType>& AssetPointer, bool bKeepInMemory = true);
+	static TSubclassOf<AssetType> GetSubclass(const TSoftClassPtr<AssetType>& AssetPointer, bool bKeepInMemory = true);
+
+	const UN1GameData& GetGameData();
+	const UN1PawnData* GetDefaultPawnData() const;
+
+protected:
+	template <typename GameDataClass>
+	const GameDataClass& GetOrLoadTypedGameData(const TSoftObjectPtr<GameDataClass>& DataPath)
+	{
+		if (TObjectPtr<UPrimaryDataAsset> const* pResult = GameDataMap.Find(GameDataClass::StaticClass()))
+		{
+			return *CastChecked<GameDataClass>(*pResult);
+		}
+
+		// Does a blocking load if needed
+		return *CastChecked<const GameDataClass>(LoadGameDataOfClass(GameDataClass::StaticClass(), DataPath, GameDataClass::StaticClass()->GetFName()));
+	}
+
+	UPrimaryDataAsset* LoadGameDataOfClass(TSubclassOf<UPrimaryDataAsset> DataClass, const TSoftObjectPtr<UPrimaryDataAsset>& DataClassPath, FPrimaryAssetType PrimaryAssetType);
 
 public:
 	UPROPERTY()
 	TSet<TObjectPtr<const UObject>> LoadedAssets;
 	
 	FCriticalSection SyncObject;
+
+protected:
+	// Global game data asset to use.
+	UPROPERTY(Config)
+	TSoftObjectPtr<UN1GameData> N1GameDataPath;
+
+	// Loaded version of the game data
+	UPROPERTY(Transient)
+	TMap<TObjectPtr<UClass>, TObjectPtr<UPrimaryDataAsset>> GameDataMap;
+
+	// Pawn data used when spawning player pawns if there isn't one set on the player state.
+	UPROPERTY(Config)
+	TSoftObjectPtr<UN1PawnData> DefaultPawnData;
+
 };
 
 template <typename AssetType>
@@ -65,23 +101,24 @@ AssetType* UN1AssetManager::GetAsset(const TSoftObjectPtr<AssetType>& AssetPoint
 }
 
 template<typename AssetType>
-TSubclassOf<AssetType> UN1AssetManager::GetSubclass(const TSoftObjectPtr<AssetType>& AssetPointer, bool bKeepInMemory)
+TSubclassOf<AssetType> UN1AssetManager::GetSubclass(const TSoftClassPtr<AssetType>& AssetPointer, bool bKeepInMemory)
 {
 	TSubclassOf<AssetType> LoadedSubclass;
+
 	const FSoftObjectPath& AssetPath = AssetPointer.ToSoftObjectPath();
 
 	if (AssetPath.IsValid())
 	{
 		LoadedSubclass = AssetPointer.Get();
-
 		if (!LoadedSubclass)
 		{
 			LoadedSubclass = Cast<UClass>(SynchronousLoadAsset(AssetPath));
 			ensureAlwaysMsgf(LoadedSubclass, TEXT("Failed to load asset class [%s]"), *AssetPointer.ToString());
 		}
 
-		if (LoadedSubclass & bKeepInMemory)
+		if (LoadedSubclass && bKeepInMemory)
 		{
+			// Added to loaded asset list.
 			Get().AddLoadedAsset(Cast<UObject>(LoadedSubclass));
 		}
 	}

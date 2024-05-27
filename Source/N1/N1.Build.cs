@@ -24,7 +24,8 @@ public class N1 : ModuleRules
 			"CommonUser",
 			"CommonGame",
 			"CommonUI",
-			"UIExtension"
+			"UIExtension",
+			"GameplayMessageRuntime"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
