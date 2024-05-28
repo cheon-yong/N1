@@ -28,6 +28,30 @@ void UN1ExperienceManagerComponent::CallOrRegister_OnExperienceLoaded(FOnN1Exper
 	}
 }
 
+void UN1ExperienceManagerComponent::CallOrRegister_OnExperienceLoaded_LowPriority(FOnN1ExperienceLoaded::FDelegate&& Delegate)
+{
+	if (IsExperienceLoaded())
+	{
+		Delegate.Execute(CurrentExperience);
+	}
+	else
+	{
+		OnExperienceLoaded_LowPriority.Add(MoveTemp(Delegate));
+	}
+}
+
+void UN1ExperienceManagerComponent::CallOrRegister_OnExperienceLoaded_HighPriority(FOnN1ExperienceLoaded::FDelegate&& Delegate)
+{
+	if (IsExperienceLoaded())
+	{
+		Delegate.Execute(CurrentExperience);
+	}
+	else
+	{
+		OnExperienceLoaded_HighPriority.Add(MoveTemp(Delegate));
+	}
+}
+
 void UN1ExperienceManagerComponent::ServerSetCurrentExperience(FPrimaryAssetId ExperienceId)
 {
 	UN1AssetManager& AssetManager = UN1AssetManager::Get();
@@ -176,8 +200,14 @@ void UN1ExperienceManagerComponent::OnExperienceFullLoadCompleted()
 	}
 
 	LoadState = EN1ExperienceLoadState::Loaded;
+	OnExperienceLoaded_HighPriority.Broadcast(CurrentExperience);
+	OnExperienceLoaded_HighPriority.Clear();
+
 	OnExperienceLoaded.Broadcast(CurrentExperience);
 	OnExperienceLoaded.Clear();
+
+	OnExperienceLoaded_LowPriority.Broadcast(CurrentExperience);
+	OnExperienceLoaded_LowPriority.Clear();
 }
 
 const UN1ExperienceDefinition* UN1ExperienceManagerComponent::GetCurrentExperienceChecked() const

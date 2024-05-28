@@ -40,7 +40,11 @@ public:
 			nullptr);
 	}
 
+	void CallOrRegister_OnExperienceLoaded_HighPriority(FOnN1ExperienceLoaded::FDelegate&& Delegate);
+
 	void CallOrRegister_OnExperienceLoaded(FOnN1ExperienceLoaded::FDelegate&& Delegate);
+
+	void CallOrRegister_OnExperienceLoaded_LowPriority(FOnN1ExperienceLoaded::FDelegate&& Delegate);
 
 	void ServerSetCurrentExperience(FPrimaryAssetId ExperienceId);
 
@@ -54,13 +58,17 @@ public:
 
 	void OnGameFeaturePluginLoadComplete(const UE::GameFeatures::FResult& Result);
 
-public:
+private:
 	UPROPERTY()
 	TObjectPtr<const UN1ExperienceDefinition> CurrentExperience;
 
 	EN1ExperienceLoadState LoadState = EN1ExperienceLoadState::Unloaded;
 
+	FOnN1ExperienceLoaded OnExperienceLoaded_HighPriority;
+
 	FOnN1ExperienceLoaded OnExperienceLoaded;
+
+	FOnN1ExperienceLoaded OnExperienceLoaded_LowPriority;
 
 	int32 NumGameFeaturePluginsLoading = 0;
 

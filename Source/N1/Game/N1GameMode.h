@@ -2,15 +2,18 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "ModularGameMode.h"
+
 #include "N1GameMode.generated.h"
 
 // forward declaration
 class UN1ExperienceDefinition;
 
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnN1GameModePlayerInitialized, AGameModeBase* /*GameMode*/, AController* /*NewPlayer*/);
+
 UCLASS()
-class AN1GameMode : public AGameModeBase
+class AN1GameMode : public AModularGameModeBase
 {
 	GENERATED_BODY()
 
@@ -28,6 +31,9 @@ public:
 	void OnMatchAssignmentGiven(FPrimaryAssetId ExperienceId);
 
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
+	virtual void GenericPlayerInitialization(AController* NewPlayer) override;
+
+
 
 	UFUNCTION(BlueprintCallable, Category = "N1|Pawn")
 	const UN1PawnData* GetPawnDataForController(const AController* InController) const;
@@ -39,6 +45,9 @@ public:
 	//virtual APlayerController* Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 	//virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void StartPlay() override;
+
+public:
+	FOnN1GameModePlayerInitialized OnGameModePlayerInitialized;
 
 protected:
 	virtual void PostInitializeComponents() override;

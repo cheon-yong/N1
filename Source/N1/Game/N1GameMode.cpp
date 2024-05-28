@@ -165,6 +165,13 @@ UClass* AN1GameMode::GetDefaultPawnClassForController_Implementation(AController
 	return Super::GetDefaultPawnClassForController_Implementation(InController);
 }
 
+void AN1GameMode::GenericPlayerInitialization(AController* NewPlayer)
+{
+	Super::GenericPlayerInitialization(NewPlayer);
+
+	OnGameModePlayerInitialized.Broadcast(this, NewPlayer);
+}
+
 const UN1PawnData* AN1GameMode::GetPawnDataForController(const AController* InController) const
 {
 	// See if pawn data is already set on the player state

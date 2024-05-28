@@ -10,7 +10,8 @@ public class N1 : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] { "N1" });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core",
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core",
 			"CoreUObject",
 			"Engine",
 			"InputCore",
@@ -25,7 +26,8 @@ public class N1 : ModuleRules
 			"CommonGame",
 			"CommonUI",
 			"UIExtension",
-			"GameplayMessageRuntime"
+			"GameplayMessageRuntime",
+			"NetCore"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
@@ -35,5 +37,7 @@ public class N1 : ModuleRules
 			"GameplayTags",
 			
 		});
+
+		SetupIrisSupport(Target);
 	}
 }
