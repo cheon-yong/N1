@@ -18,6 +18,9 @@
 #include "N1LogChannels.h"
 #include <Kismet/GameplayStatics.h>
 #include "UI/N1HUD.h"
+#include "Player/N1PlayerSpawningManagerComponent.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(N1GameMode)
 
 AN1GameMode::AN1GameMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -170,6 +173,32 @@ void AN1GameMode::GenericPlayerInitialization(AController* NewPlayer)
 	Super::GenericPlayerInitialization(NewPlayer);
 
 	OnGameModePlayerInitialized.Broadcast(this, NewPlayer);
+}
+
+bool AN1GameMode::ControllerCanRestart(AController* Controller)
+{
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		if (!Super::PlayerCanRestart_Implementation(PC))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		// Bot version of Super::PlayerCanRestart_Implementation
+		if ((Controller == nullptr) || Controller->IsPendingKillPending())
+		{
+			return false;
+		}
+	}
+
+	if (UN1PlayerSpawningManagerComponent* PlayerSpawningComponent = GameState->FindComponentByClass<UN1PlayerSpawningManagerComponent>())
+	{
+		return PlayerSpawningComponent->ControllerCanRestart(Controller);
+	}
+
+	return true;
 }
 
 const UN1PawnData* AN1GameMode::GetPawnDataForController(const AController* InController) const

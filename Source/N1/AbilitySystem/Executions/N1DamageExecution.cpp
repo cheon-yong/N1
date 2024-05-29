@@ -4,6 +4,7 @@
 #include "AbilitySystem/Executions/N1DamageExecution.h"
 
 #include "AbilitySystem/Attributes/N1CombatSet.h"
+#include "AbilitySystem/Attributes/N1HealthSet.h"
 #include "AbilitySystem/N1AbilitySourceInterface.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/N1GameplayEffectContext.h"
@@ -130,7 +131,7 @@ void UN1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 	if (DamageDone > 0.0f)
 	{
 		// Apply a damage modifier, this gets turned into - health on the target
-		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(ULyraHealthSet::GetDamageAttribute(), EGameplayModOp::Additive, DamageDone));
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UN1HealthSet::GetDamageAttribute(), EGameplayModOp::Additive, DamageDone));
 	}
 #endif // #if WITH_SERVER_CODE
 }

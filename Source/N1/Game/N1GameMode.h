@@ -33,7 +33,7 @@ public:
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 	virtual void GenericPlayerInitialization(AController* NewPlayer) override;
 
-
+	virtual bool ControllerCanRestart(AController* Controller);
 
 	UFUNCTION(BlueprintCallable, Category = "N1|Pawn")
 	const UN1PawnData* GetPawnDataForController(const AController* InController) const;
