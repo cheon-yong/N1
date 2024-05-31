@@ -8,6 +8,8 @@
 
 class UN1CameraModeStack;
 class UN1CameraMode;
+class UCanvas;
+struct FGameplayTag;
 
 template <class TClass> class TSubclassOf;
 DECLARE_DELEGATE_RetVal(TSubclassOf<UN1CameraMode>, FN1CameraModeDelegate);
@@ -26,13 +28,25 @@ public:
 	virtual void OnRegister() final;
 	virtual void GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView) override;
 	void UpdateCameraModes();
+
 	AActor* GetTargetActor() const { return GetOwner(); }
+
+	void AddFieldOfViewOffset(float FovOffset) { FieldOfViewOffset += FovOffset; }
+
+	virtual void DrawDebug(UCanvas* Canvas) const;
+
+	// Gets the tag associated with the top layer and the blend weight of it
+	void GetBlendInfo(float& OutWeightOfTopLayer, FGameplayTag& OutTagOfTopLayer) const;
 
 	UFUNCTION(BlueprintPure, Category = "N1|Camera")
 	static UN1CameraComponent* FindCameraComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UN1CameraComponent>() : nullptr); }
 public:
+	FN1CameraModeDelegate DetermineCameraModeDelegate;
+
+protected:
 	UPROPERTY()
 	TObjectPtr<UN1CameraModeStack> CameraModeStack;
-	FN1CameraModeDelegate DetermineCameraModeDelegate;
-	
+
+	// Offset applied to the field of view.  The offset is only for one frame, it gets cleared once it is applied.
+	float FieldOfViewOffset;
 };

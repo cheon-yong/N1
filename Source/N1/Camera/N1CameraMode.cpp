@@ -4,9 +4,11 @@
 #include "Camera/N1CameraMode.h"
 
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/Character.h"
 #include "Camera/N1CameraComponent.h"
 #include "Camera/N1PlayerCameraManager.h"
+#include "Engine/Canvas.h"
+#include "GameFramework/Character.h"
+#include <GameplayTagContainer.h>
 
 FN1CameraModeView::FN1CameraModeView()
 	: Location(ForceInit)
@@ -35,26 +37,42 @@ void FN1CameraModeView::Blend(const FN1CameraModeView& Other, float OtherWeight)
 	FieldOfView = FMath::Lerp(FieldOfView, Other.FieldOfView, OtherWeight);
 }
 
-
-UN1CameraMode::UN1CameraMode(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
-	FieldOfView = N1_CAMERA_DEFAULT_FOV;
-	ViewPitchMin = N1_CAMERA_DEFAULT_PITCH_MIN;
-	ViewPitchMax = N1_CAMERA_DEFAULT_PITCH_MAX;
-	BlendTime = 0.0f;
-	BlendAlpha = 1.0f;
-	BlendWeight = 1.0f;
-
-	BlendFunction = EN1CameraModeBlendFunction::EaseOut;
-	BlendExponent = 4.0f;
-}
-
 void UN1CameraMode::UpdateCameraMode(float DeltaTime)
 {
 	UpdateView(DeltaTime);
 	 
 	UpdateBlending(DeltaTime);
+}
+
+void UN1CameraMode::SetBlendWeight(float Weight)
+{
+	BlendWeight = FMath::Clamp(Weight, 0.0f, 1.0f);
+
+	// Since we're setting the blend weight directly, we need to calculate the blend alpha to account for the blend function.
+	const float InvExponent = (BlendExponent > 0.0f) ? (1.0f / BlendExponent) : 1.0f;
+
+	switch (BlendFunction)
+	{
+	case EN1CameraModeBlendFunction::Linear:
+		BlendAlpha = BlendWeight;
+		break;
+
+	case EN1CameraModeBlendFunction::EaseIn:
+		BlendAlpha = FMath::InterpEaseIn(0.0f, 1.0f, BlendWeight, InvExponent);
+		break;
+
+	case EN1CameraModeBlendFunction::EaseOut:
+		BlendAlpha = FMath::InterpEaseOut(0.0f, 1.0f, BlendWeight, InvExponent);
+		break;
+
+	case EN1CameraModeBlendFunction::EaseInOut:
+		BlendAlpha = FMath::InterpEaseInOut(0.0f, 1.0f, BlendWeight, InvExponent);
+		break;
+
+	default:
+		checkf(false, TEXT("SetBlendWeight: Invalid BlendFunction [%d]\n"), (uint8)BlendFunction);
+		break;
+	}
 }
 
 void UN1CameraMode::UpdateView(float DeltaTime)
@@ -100,6 +118,10 @@ void UN1CameraMode::UpdateBlending(float DeltaTime)
 	}
 }
 
+void UN1CameraMode::DrawDebug(UCanvas* Canvas) const
+{
+}
+
 FVector UN1CameraMode::GetPivotLocation() const
 {
 	const AActor* TargetActor = GetTargetActor();
@@ -123,9 +145,27 @@ FRotator UN1CameraMode::GetPivotRotation() const
 	return TargetActor->GetActorRotation();
 }
 
+UN1CameraMode::UN1CameraMode()
+{
+	FieldOfView = N1_CAMERA_DEFAULT_FOV;
+	ViewPitchMin = N1_CAMERA_DEFAULT_PITCH_MIN;
+	ViewPitchMax = N1_CAMERA_DEFAULT_PITCH_MAX;
+	BlendTime = 0.0f;
+	BlendAlpha = 1.0f;
+	BlendWeight = 1.0f;
+
+	BlendFunction = EN1CameraModeBlendFunction::EaseOut;
+	BlendExponent = 4.0f;
+}
+
 UN1CameraComponent* UN1CameraMode::GetN1CameraComponent() const
 {
 	return CastChecked<UN1CameraComponent>(GetOuter());
+}
+
+UWorld* UN1CameraMode::GetWorld() const
+{
+	return HasAnyFlags(RF_ClassDefaultObject) ? nullptr : GetOuter()->GetWorld();
 }
 
 AActor* UN1CameraMode::GetTargetActor() const
@@ -134,9 +174,42 @@ AActor* UN1CameraMode::GetTargetActor() const
 	return N1CameraComponent->GetTargetActor();
 }
 
+////////////////////////////////////////////////////////////////////
+// CameraModeStack
 UN1CameraModeStack::UN1CameraModeStack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	bIsActive = true;
+}
+
+void UN1CameraModeStack::ActivateStack()
+{
+	if (!bIsActive)
+	{
+		bIsActive = true;
+
+		// Notify camera modes that they are being activated.
+		for (UN1CameraMode* CameraMode : CameraModeStack)
+		{
+			check(CameraMode);
+			CameraMode->OnActivation();
+		}
+	}
+}
+
+void UN1CameraModeStack::DeactivateStack()
+{
+	if (bIsActive)
+	{
+		bIsActive = false;
+
+		// Notify camera modes that they are being deactivated.
+		for (UN1CameraMode* CameraMode : CameraModeStack)
+		{
+			check(CameraMode);
+			CameraMode->OnDeactivation();
+		}
+	}
 }
 
 UN1CameraMode* UN1CameraModeStack::GetCameraModeInstance(TSubclassOf<UN1CameraMode>& CameraModeClass)
@@ -164,25 +237,31 @@ void UN1CameraModeStack::PushCameraMode(TSubclassOf<UN1CameraMode> CameraModeCla
 
 	UN1CameraMode* CameraMode = GetCameraModeInstance(CameraModeClass);
 	check(CameraMode);
+
 	int32 StackSize = CameraModeStack.Num();
+
 	if ((StackSize > 0) && (CameraModeStack[0] == CameraMode))
 	{
+		// Already top of stack.
 		return;
 	}
 
+	// See if it's already in the stack and remove it.
+	// Figure out how much it was contributing to the stack.
 	int32 ExistingStackIndex = INDEX_NONE;
 	float ExistingStackContribution = 1.0f;
+
 	for (int32 StackIndex = 0; StackIndex < StackSize; ++StackIndex)
 	{
 		if (CameraModeStack[StackIndex] == CameraMode)
 		{
 			ExistingStackIndex = StackIndex;
-			ExistingStackContribution *= CameraMode->BlendWeight;
+			ExistingStackContribution *= CameraMode->GetBlendWeight();
 			break;
 		}
 		else
 		{
-			ExistingStackContribution *= (1.0f - CameraModeStack[StackIndex]->BlendWeight);
+			ExistingStackContribution *= (1.0f - CameraModeStack[StackIndex]->GetBlendWeight());
 		}
 	}
 
@@ -196,44 +275,114 @@ void UN1CameraModeStack::PushCameraMode(TSubclassOf<UN1CameraMode> CameraModeCla
 		ExistingStackContribution = 0.0f;
 	}
 
-	const bool bShouldBlend = ((CameraMode->BlendTime > 0.f) && (StackSize > 0));
+	// Decide what initial weight to start with.
+	const bool bShouldBlend = ((CameraMode->GetBlendTime() > 0.0f) && (StackSize > 0));
 	const float BlendWeight = (bShouldBlend ? ExistingStackContribution : 1.0f);
-	CameraMode->BlendWeight = BlendWeight;
+
+	CameraMode->SetBlendWeight(BlendWeight);
+
+	// Add new entry to top of stack.
 	CameraModeStack.Insert(CameraMode, 0);
-	CameraModeStack.Last()->BlendWeight = 1.0f;
+
+	// Make sure stack bottom is always weighted 100%.
+	CameraModeStack.Last()->SetBlendWeight(1.0f);
+
+	// Let the camera mode know if it's being added to the stack.
+	if (ExistingStackIndex == INDEX_NONE)
+	{
+		CameraMode->OnActivation();
+	}
 }
 
-void UN1CameraModeStack::EvaluateStack(float DeltaTime, FN1CameraModeView& OutCameraModeView)
+bool UN1CameraModeStack::EvaluateStack(float DeltaTime, FN1CameraModeView& OutCameraModeView)
 {
-	UpdateStack(DeltaTime);
+	if (!bIsActive)
+	{
+		return false;
+	}
 
+	UpdateStack(DeltaTime);
 	BlendStack(OutCameraModeView);
+
+	return true;
+}
+
+void UN1CameraModeStack::DrawDebug(UCanvas* Canvas) const
+{
+	check(Canvas);
+
+	FDisplayDebugManager& DisplayDebugManager = Canvas->DisplayDebugManager;
+
+	DisplayDebugManager.SetDrawColor(FColor::Green);
+	DisplayDebugManager.DrawString(FString(TEXT("   --- Camera Modes (Begin) ---")));
+
+	for (const UN1CameraMode* CameraMode : CameraModeStack)
+	{
+		check(CameraMode);
+		CameraMode->DrawDebug(Canvas);
+	}
+
+	DisplayDebugManager.SetDrawColor(FColor::Green);
+	DisplayDebugManager.DrawString(FString::Printf(TEXT("   --- Camera Modes (End) ---")));
+}
+
+void UN1CameraModeStack::GetBlendInfo(float& OutWeightOfTopLayer, FGameplayTag& OutTagOfTopLayer) const
+{
+	if (CameraModeStack.Num() == 0)
+	{
+		OutWeightOfTopLayer = 1.0f;
+		OutTagOfTopLayer = FGameplayTag();
+		return;
+	}
+	else
+	{
+		UN1CameraMode* TopEntry = CameraModeStack.Last();
+		check(TopEntry);
+		OutWeightOfTopLayer = TopEntry->GetBlendWeight();
+		OutTagOfTopLayer = TopEntry->GetCameraTypeTag();
+	}
 }
 
 void UN1CameraModeStack::UpdateStack(float DeltaTime)
 {
 	const int32 StackSize = CameraModeStack.Num();
 	if (StackSize <= 0)
+	{
 		return;
+	}
+
 	int32 RemoveCount = 0;
 	int32 RemoveIndex = INDEX_NONE;
+
 	for (int32 StackIndex = 0; StackIndex < StackSize; ++StackIndex)
 	{
 		UN1CameraMode* CameraMode = CameraModeStack[StackIndex];
 		check(CameraMode);
+
 		CameraMode->UpdateCameraMode(DeltaTime);
-		if (CameraMode->BlendWeight >= 1.0f)
+
+		if (CameraMode->GetBlendWeight() >= 1.0f)
 		{
+			// Everything below this mode is now irrelevant and can be removed.
 			RemoveIndex = (StackIndex + 1);
 			RemoveCount = (StackSize - RemoveIndex);
 			break;
 		}
 	}
+
 	if (RemoveCount > 0)
 	{
+		// Let the camera modes know they being removed from the stack.
+		for (int32 StackIndex = RemoveIndex; StackIndex < StackSize; ++StackIndex)
+		{
+			UN1CameraMode* CameraMode = CameraModeStack[StackIndex];
+			check(CameraMode);
+
+			CameraMode->OnDeactivation();
+		}
+
 		CameraModeStack.RemoveAt(RemoveIndex, RemoveCount);
 	}
-
 }
 
 void UN1CameraModeStack::BlendStack(FN1CameraModeView& OutCameraModeView) const
@@ -245,11 +394,11 @@ void UN1CameraModeStack::BlendStack(FN1CameraModeView& OutCameraModeView) const
 	}
 	const UN1CameraMode* CameraMode = CameraModeStack[StackSize - 1];
 	check(CameraMode);
-	OutCameraModeView = CameraMode->View;
+	OutCameraModeView = CameraMode->GetCameraModeView();
 	for (int32 StackIndex = (StackSize - 2); StackIndex >= 0; --StackIndex)
 	{
 		CameraMode = CameraModeStack[StackIndex];
 		check(CameraMode);
-		OutCameraModeView.Blend(CameraMode->View, CameraMode->BlendWeight);
+		OutCameraModeView.Blend(CameraMode->GetCameraModeView(), CameraMode->GetBlendWeight());
 	}
 }

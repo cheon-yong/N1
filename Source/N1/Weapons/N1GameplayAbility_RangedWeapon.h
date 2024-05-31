@@ -12,7 +12,18 @@ class UN1EquipmentInstance;
 UENUM(BlueprintType)
 enum class EN1AbilityTargetingSource : uint8
 {
+	// From the player's camera towards camera focus
 	CameraTowardsFocus,
+	// From the pawn's center, in the pawn's orientation
+	PawnForward,
+	// From the pawn's center, oriented towards camera focus
+	PawnTowardsFocus,
+	// From the weapon's muzzle or location, in the pawn's orientation
+	WeaponForward,
+	// From the weapon's muzzle or location, towards camera focus
+	WeaponTowardsFocus,
+	// Custom blueprint-specified source location
+	Custom
 };
 
 
@@ -50,6 +61,14 @@ public:
 
 	UN1RangedWeaponInstance* GetWeaponInstance();
 
+	//~UGameplayAbility interface
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+	//~End of UGameplayAbility interface
+
+	static int32 FindFirstPawnHitResult(const TArray<FHitResult>& HitResults);
+
 	UN1EquipmentInstance* GetAssociatedEquipment() const;
 
 	FVector GetWeaponTargetingSourceLocation() const;
@@ -59,8 +78,6 @@ public:
 	void TraceBulletsInCartridge(const FRangedWeaponFiringInput& InputData, TArray<FHitResult>& OutHits);
 
 	FHitResult DoSingleBulletTrace(const FVector& StartTrace, const FVector& EndTrace, float SweepRadius, bool bIsSimulated, TArray<FHitResult>& OutHits) const;
-
-	static int32 FindFirstPawnHitResult(const TArray<FHitResult>& HitResults);
 
 	FHitResult WeaponTrace(const FVector& StartTrace, const FVector& EndTrace, float SweepRadius, bool bIsSimulated, TArray<FHitResult>& OutHitResults) const;
 

@@ -27,7 +27,8 @@ public class N1 : ModuleRules
 			"CommonUI",
 			"UIExtension",
 			"GameplayMessageRuntime",
-			"NetCore"
+			"NetCore",
+			"PhysicsCore"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {

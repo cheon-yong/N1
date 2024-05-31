@@ -2,11 +2,22 @@
 
 
 #include "Camera/N1CameraComponent.h"
+
+#include "Engine/Canvas.h"
+#include "Engine/Engine.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "Camera/N1CameraMode.h"
+#include <GameplayTagContainer.h>
+
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(N1CameraComponent)
 
 UN1CameraComponent::UN1CameraComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	CameraModeStack = nullptr;
+	FieldOfViewOffset = 0.0f;
 }
 
 void UN1CameraComponent::OnRegister()
@@ -51,16 +62,51 @@ void UN1CameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& Desire
 	{
 		DesiredView.PostProcessSettings = PostProcessSettings;
 	}
+
+	if (IsXRHeadTrackedCamera())
+	{
+		// In XR much of the camera behavior above is irrellevant, but the post process settings are not.
+		Super::GetCameraView(DeltaTime, DesiredView);
+	}
 }
 
 void UN1CameraComponent::UpdateCameraModes()
 {
 	check(CameraModeStack);
-	if (DetermineCameraModeDelegate.IsBound())
+	if (CameraModeStack->IsStackActivate())
 	{
-		if (const TSubclassOf<UN1CameraMode> CameraMode = DetermineCameraModeDelegate.Execute())
+		if (DetermineCameraModeDelegate.IsBound())
 		{
-			CameraModeStack->PushCameraMode(CameraMode);
+			if (const TSubclassOf<UN1CameraMode> CameraMode = DetermineCameraModeDelegate.Execute())
+			{
+				CameraModeStack->PushCameraMode(CameraMode);
+			}
 		}
 	}
+	
+}
+
+void UN1CameraComponent::DrawDebug(UCanvas* Canvas) const
+{
+	check(Canvas);
+
+	FDisplayDebugManager& DisplayDebugManager = Canvas->DisplayDebugManager;
+
+	DisplayDebugManager.SetFont(GEngine->GetSmallFont());
+	DisplayDebugManager.SetDrawColor(FColor::Yellow);
+	DisplayDebugManager.DrawString(FString::Printf(TEXT("LyraCameraComponent: %s"), *GetNameSafe(GetTargetActor())));
+
+	DisplayDebugManager.SetDrawColor(FColor::White);
+	DisplayDebugManager.DrawString(FString::Printf(TEXT("   Location: %s"), *GetComponentLocation().ToCompactString()));
+	DisplayDebugManager.DrawString(FString::Printf(TEXT("   Rotation: %s"), *GetComponentRotation().ToCompactString()));
+	DisplayDebugManager.DrawString(FString::Printf(TEXT("   FOV: %f"), FieldOfView));
+
+	check(CameraModeStack);
+	CameraModeStack->DrawDebug(Canvas);
+}
+
+void UN1CameraComponent::GetBlendInfo(float& OutWeightOfTopLayer, FGameplayTag& OutTagOfTopLayer) const
+{
+	check(CameraModeStack);
+	CameraModeStack->GetBlendInfo(/*out*/ OutWeightOfTopLayer, /*out*/ OutTagOfTopLayer);
 }

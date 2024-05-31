@@ -7,10 +7,72 @@
 #include <Physics/N1CollisionChannels.h>
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/N1GameplayAbilityTargetData_SingleTarget.h"
+#include "NativeGameplayTags.h"
+#include "N1LogChannels.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(N1GameplayAbility_RangedWeapon)
+
+namespace N1ConsoleVariables
+{
+	static float DrawBulletTracesDuration = 0.0f;
+	static FAutoConsoleVariableRef CVarDrawBulletTraceDuraton(
+		TEXT("N1.Weapon.DrawBulletTraceDuration"),
+		DrawBulletTracesDuration,
+		TEXT("Should we do debug drawing for bullet traces (if above zero, sets how long (in seconds))"),
+		ECVF_Default);
+
+	static float DrawBulletHitDuration = 0.0f;
+	static FAutoConsoleVariableRef CVarDrawBulletHits(
+		TEXT("N1.Weapon.DrawBulletHitDuration"),
+		DrawBulletHitDuration,
+		TEXT("Should we do debug drawing for bullet impacts (if above zero, sets how long (in seconds))"),
+		ECVF_Default);
+
+	static float DrawBulletHitRadius = 3.0f;
+	static FAutoConsoleVariableRef CVarDrawBulletHitRadius(
+		TEXT("N1.Weapon.DrawBulletHitRadius"),
+		DrawBulletHitRadius,
+		TEXT("When bullet hit debug drawing is enabled (see DrawBulletHitDuration), how big should the hit radius be? (in uu)"),
+		ECVF_Default);
+}
+
+// Weapon fire will be blocked/canceled if the player has this tag
+UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_WeaponFireBlocked, "Ability.Weapon.NoFiring");
+
+//////////////////////////////////////////////////////////////////////
+
+FVector VRandConeNormalDistribution(const FVector& Dir, const float ConeHalfAngleRad, const float Exponent)
+{
+	if (ConeHalfAngleRad > 0.f)
+	{
+		const float ConeHalfAngleDegrees = FMath::RadiansToDegrees(ConeHalfAngleRad);
+
+		// consider the cone a concatenation of two rotations. one "away" from the center line, and another "around" the circle
+		// apply the exponent to the away-from-center rotation. a larger exponent will cluster points more tightly around the center
+		const float FromCenter = FMath::Pow(FMath::FRand(), Exponent);
+		const float AngleFromCenter = FromCenter * ConeHalfAngleDegrees;
+		const float AngleAround = FMath::FRand() * 360.0f;
+
+		FRotator Rot = Dir.Rotation();
+		FQuat DirQuat(Rot);
+		FQuat FromCenterQuat(FRotator(0.0f, AngleFromCenter, 0.0f));
+		FQuat AroundQuat(FRotator(0.0f, 0.0, AngleAround));
+		FQuat FinalDirectionQuat = DirQuat * AroundQuat * FromCenterQuat;
+		FinalDirectionQuat.Normalize();
+
+		return FinalDirectionQuat.RotateVector(FVector::ForwardVector);
+	}
+	else
+	{
+		return Dir.GetSafeNormal();
+	}
+}
+
 
 UN1GameplayAbility_RangedWeapon::UN1GameplayAbility_RangedWeapon(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	SourceBlockedTags.AddTag(TAG_WeaponFireBlocked);
 }
 
 void UN1GameplayAbility_RangedWeapon::StartRangedWeaponTargeting()
@@ -45,25 +107,30 @@ void UN1GameplayAbility_RangedWeapon::StartRangedWeaponTargeting()
 void UN1GameplayAbility_RangedWeapon::PerformLocalTargeting(TArray<FHitResult>& OutHits)
 {
 	APawn* const AvatarPawn = Cast<APawn>(GetAvatarActorFromActorInfo());
+
 	UN1RangedWeaponInstance* WeaponData = GetWeaponInstance();
 	if (AvatarPawn && AvatarPawn->IsLocallyControlled() && WeaponData)
 	{
 		FRangedWeaponFiringInput InputData;
 		InputData.WeaponData = WeaponData;
-		InputData.bCanPlayBulletFX = true;
-		const FTransform TargetTransform = GetTargetingTransform(AvatarPawn,
-			EN1AbilityTargetingSource::CameraTowardsFocus);
+		InputData.bCanPlayBulletFX = (AvatarPawn->GetNetMode() != NM_DedicatedServer);
+
+		//@TODO: Should do more complicated logic here when the player is close to a wall, etc...
+		const FTransform TargetTransform = GetTargetingTransform(AvatarPawn, EN1AbilityTargetingSource::CameraTowardsFocus);
 		InputData.AimDir = TargetTransform.GetUnitAxis(EAxis::X);
 		InputData.StartTrace = TargetTransform.GetTranslation();
-		InputData.EndAim = InputData.StartTrace + InputData.AimDir * WeaponData->MaxDamageRange;
-#if 1
+
+		InputData.EndAim = InputData.StartTrace + InputData.AimDir * WeaponData->GetMaxDamageRange();
+
+#if ENABLE_DRAW_DEBUG
+		if (N1ConsoleVariables::DrawBulletTracesDuration > 0.0f)
 		{
 			static float DebugThickness = 2.0f;
-			DrawDebugLine(GetWorld(), InputData.StartTrace, InputData.StartTrace +
-				(InputData.AimDir * 100.0f), FColor::Yellow, false, 10.0f, 0, DebugThickness);
+			DrawDebugLine(GetWorld(), InputData.StartTrace, InputData.StartTrace + (InputData.AimDir * 100.0f), FColor::Yellow, false, N1ConsoleVariables::DrawBulletTracesDuration, 0, DebugThickness);
 		}
 #endif
-		TraceBulletsInCartridge(InputData, OutHits);
+
+		TraceBulletsInCartridge(InputData, /*out*/ OutHits);
 	}
 
 }
@@ -71,6 +138,19 @@ void UN1GameplayAbility_RangedWeapon::PerformLocalTargeting(TArray<FHitResult>& 
 UN1RangedWeaponInstance* UN1GameplayAbility_RangedWeapon::GetWeaponInstance()
 {
 	return Cast<UN1RangedWeaponInstance>(GetAssociatedEquipment());
+}
+
+bool UN1GameplayAbility_RangedWeapon::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+	return false;
+}
+
+void UN1GameplayAbility_RangedWeapon::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+{
+}
+
+void UN1GameplayAbility_RangedWeapon::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
 }
 
 UN1EquipmentInstance* UN1GameplayAbility_RangedWeapon::GetAssociatedEquipment() const
@@ -134,29 +214,56 @@ void UN1GameplayAbility_RangedWeapon::TraceBulletsInCartridge(const FRangedWeapo
 	UN1RangedWeaponInstance* WeaponData = InputData.WeaponData;
 	check(WeaponData);
 
-	const FVector BulletDir = InputData.AimDir;
-	const FVector EndTrace = InputData.StartTrace + (BulletDir * WeaponData->MaxDamageRange);
+	const int32 BulletsPerCartridge = WeaponData->GetBulletsPerCartridge();
 
-	FVector HitLocation = EndTrace;
-	TArray<FHitResult> AllImpacts;
-	FHitResult Impact = DoSingleBulletTrace(InputData.StartTrace, EndTrace, WeaponData->BulletTraceWeaponRadius, false, AllImpacts);
-	const AActor* HitActor = Impact.GetActor();
-	if (HitActor)
+	for (int32 BulletIndex = 0; BulletIndex < BulletsPerCartridge; ++BulletIndex)
 	{
-		if (AllImpacts.Num() > 0)
+		const float BaseSpreadAngle = WeaponData->GetCalculatedSpreadAngle();
+		const float SpreadAngleMultiplier = WeaponData->GetCalculatedSpreadAngleMultiplier();
+		const float ActualSpreadAngle = BaseSpreadAngle * SpreadAngleMultiplier;
+
+		const float HalfSpreadAngleInRadians = FMath::DegreesToRadians(ActualSpreadAngle * 0.5f);
+
+		const FVector BulletDir = VRandConeNormalDistribution(InputData.AimDir, HalfSpreadAngleInRadians, WeaponData->GetSpreadExponent());
+
+		const FVector EndTrace = InputData.StartTrace + (BulletDir * WeaponData->GetMaxDamageRange());
+		FVector HitLocation = EndTrace;
+
+		TArray<FHitResult> AllImpacts;
+
+		FHitResult Impact = DoSingleBulletTrace(InputData.StartTrace, EndTrace, WeaponData->GetBulletTraceSweepRadius(), /*bIsSimulated=*/ false, /*out*/ AllImpacts);
+
+		const AActor* HitActor = Impact.GetActor();
+
+		if (HitActor)
 		{
-			OutHits.Append(AllImpacts);
+#if ENABLE_DRAW_DEBUG
+			if (N1ConsoleVariables::DrawBulletHitDuration > 0.0f)
+			{
+				DrawDebugPoint(GetWorld(), Impact.ImpactPoint, N1ConsoleVariables::DrawBulletHitRadius, FColor::Red, false, N1ConsoleVariables::DrawBulletHitRadius);
+			}
+#endif
+
+			if (AllImpacts.Num() > 0)
+			{
+				OutHits.Append(AllImpacts);
+			}
+
+			HitLocation = Impact.ImpactPoint;
 		}
-		HitLocation = Impact.ImpactPoint;
-	}
-	if (OutHits.Num() == 0)
-	{
-		if (!Impact.bBlockingHit)
+
+		// Make sure there's always an entry in OutHits so the direction can be used for tracers, etc...
+		if (OutHits.Num() == 0)
 		{
-			Impact.Location = EndTrace;
-			Impact.ImpactPoint = EndTrace;
+			if (!Impact.bBlockingHit)
+			{
+				// Locate the fake 'impact' at the end of the trace
+				Impact.Location = EndTrace;
+				Impact.ImpactPoint = EndTrace;
+			}
+
+			OutHits.Add(Impact);
 		}
-		OutHits.Add(Impact);
 	}
 }
 
