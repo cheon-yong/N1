@@ -59,7 +59,7 @@ public:
 
 	void PerformLocalTargeting(TArray<FHitResult>& OutHits);
 
-	UN1RangedWeaponInstance* GetWeaponInstance();
+	UN1RangedWeaponInstance* GetWeaponInstance() const;
 
 	//~UGameplayAbility interface
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
@@ -89,4 +89,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnRangeWeaponTargetDataReady(const FGameplayAbilityTargetDataHandle& TargetData);
+
+private:
+	FDelegateHandle OnTargetDataReadyCallbackDelegateHandle;
 };

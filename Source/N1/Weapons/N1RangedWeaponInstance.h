@@ -1,24 +1,27 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "Curves/CurveFloat.h"
 
-#include "Weapons/N1WeaponInstance.h"
+#include "N1WeaponInstance.h"
 #include "AbilitySystem/N1AbilitySourceInterface.h"
+
 #include "N1RangedWeaponInstance.generated.h"
 
 class UPhysicalMaterial;
 
 /**
- * 
+ * UN1RangedWeaponInstance
+ *
+ * A piece of equipment representing a ranged weapon spawned and applied to a pawn
  */
 UCLASS()
-class N1_API UN1RangedWeaponInstance : public UN1WeaponInstance, public IN1AbilitySourceInterface
+class UN1RangedWeaponInstance : public UN1WeaponInstance, public IN1AbilitySourceInterface
 {
 	GENERATED_BODY()
-	
-public:
+
+	public:
 	UN1RangedWeaponInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void PostLoad() override;
@@ -65,40 +68,6 @@ public:
 		return BulletTraceSweepRadius;
 	}
 
-public:
-	void Tick(float DeltaSeconds);
-
-	//~ULyraEquipmentInstance interface
-	virtual void OnEquipped();
-	virtual void OnUnequipped();
-	//~End of ULyraEquipmentInstance interface
-
-	void AddSpread();
-
-	//~ILyraAbilitySourceInterface interface
-	virtual float GetDistanceAttenuation(float Distance, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr) const override;
-	virtual float GetPhysicalMaterialAttenuation(const UPhysicalMaterial* PhysicalMaterial, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr) const override;
-	//~End of ILyraAbilitySourceInterface interface
-
-private:
-	void ComputeSpreadRange(float& MinSpread, float& MaxSpread);
-	void ComputeHeatRange(float& MinHeat, float& MaxHeat);
-
-	inline float ClampHeat(float NewHeat)
-	{
-		float MinHeat;
-		float MaxHeat;
-		ComputeHeatRange(/*out*/ MinHeat, /*out*/ MaxHeat);
-
-		return FMath::Clamp(NewHeat, MinHeat, MaxHeat);
-	}
-
-	// Updates the spread and returns true if the spread is at minimum
-	bool UpdateSpread(float DeltaSeconds);
-
-	// Updates the multipliers and returns true if they are at minimum
-	bool UpdateMultipliers(float DeltaSeconds);
-
 protected:
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(VisibleAnywhere, Category = "Spread|Fire Params")
@@ -126,8 +95,8 @@ protected:
 #endif
 
 	// Spread exponent, affects how tightly shots will cluster around the center line
-		// when the weapon has spread (non-perfect accuracy). Higher values will cause shots
-		// to be closer to the center (default is 1.0 which means uniformly within the spread range)
+	// when the weapon has spread (non-perfect accuracy). Higher values will cause shots
+	// to be closer to the center (default is 1.0 which means uniformly within the spread range)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 0.1), Category = "Spread|Fire Params")
 	float SpreadExponent = 1.0f;
 
@@ -244,4 +213,38 @@ private:
 
 	// The current crouching multiplier
 	float CrouchingMultiplier = 1.0f;
+
+public:
+	void Tick(float DeltaSeconds);
+
+	//~UN1EquipmentInstance interface
+	virtual void OnEquipped();
+	virtual void OnUnequipped();
+	//~End of UN1EquipmentInstance interface
+
+	void AddSpread();
+
+	//~IN1AbilitySourceInterface interface
+	virtual float GetDistanceAttenuation(float Distance, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr) const override;
+	virtual float GetPhysicalMaterialAttenuation(const UPhysicalMaterial* PhysicalMaterial, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr) const override;
+	//~End of IN1AbilitySourceInterface interface
+
+private:
+	void ComputeSpreadRange(float& MinSpread, float& MaxSpread);
+	void ComputeHeatRange(float& MinHeat, float& MaxHeat);
+
+	inline float ClampHeat(float NewHeat)
+	{
+		float MinHeat;
+		float MaxHeat;
+		ComputeHeatRange(/*out*/ MinHeat, /*out*/ MaxHeat);
+
+		return FMath::Clamp(NewHeat, MinHeat, MaxHeat);
+	}
+
+	// Updates the spread and returns true if the spread is at minimum
+	bool UpdateSpread(float DeltaSeconds);
+
+	// Updates the multipliers and returns true if they are at minimum
+	bool UpdateMultipliers(float DeltaSeconds);
 };

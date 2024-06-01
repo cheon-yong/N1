@@ -135,22 +135,65 @@ void UN1GameplayAbility_RangedWeapon::PerformLocalTargeting(TArray<FHitResult>& 
 
 }
 
-UN1RangedWeaponInstance* UN1GameplayAbility_RangedWeapon::GetWeaponInstance()
+UN1RangedWeaponInstance* UN1GameplayAbility_RangedWeapon::GetWeaponInstance() const
 {
 	return Cast<UN1RangedWeaponInstance>(GetAssociatedEquipment());
 }
 
 bool UN1GameplayAbility_RangedWeapon::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
-	return false;
+	bool bResult = Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+
+	if (bResult)
+	{
+		if (GetWeaponInstance() == nullptr)
+		{
+			UE_LOG(LogN1AbilitySystem, Error, TEXT("Weapon ability %s cannot be activated because there is no associated ranged weapon (equipment instance=%s but needs to be derived from %s)"),
+				*GetPathName(),
+				*GetPathNameSafe(GetAssociatedEquipment()),
+				*UN1RangedWeaponInstance::StaticClass()->GetName());
+			bResult = false;
+		}
+	}
+
+	return bResult;
 }
 
 void UN1GameplayAbility_RangedWeapon::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	// Bind target data callback
+	UAbilitySystemComponent* MyAbilityComponent = CurrentActorInfo->AbilitySystemComponent.Get();
+	check(MyAbilityComponent);
+
+	OnTargetDataReadyCallbackDelegateHandle = MyAbilityComponent->AbilityTargetDataSetDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).AddUObject(this, &ThisClass::OnTargetDataReadyCallback);
+
+	// Update the last firing time
+	UN1RangedWeaponInstance* WeaponData = GetWeaponInstance();
+	check(WeaponData);
+	WeaponData->UpdateFiringTime();
+
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
 void UN1GameplayAbility_RangedWeapon::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	if (IsEndAbilityValid(Handle, ActorInfo))
+	{
+		if (ScopeLockCount > 0)
+		{
+			WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &ThisClass::EndAbility, Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled));
+			return;
+		}
+
+		UAbilitySystemComponent* MyAbilityComponent = CurrentActorInfo->AbilitySystemComponent.Get();
+		check(MyAbilityComponent);
+
+		// When ability ends, consume target data and remove delegate
+		MyAbilityComponent->AbilityTargetDataSetDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).Remove(OnTargetDataReadyCallbackDelegateHandle);
+		MyAbilityComponent->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
+
+		Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	}
 }
 
 UN1EquipmentInstance* UN1GameplayAbility_RangedWeapon::GetAssociatedEquipment() const
