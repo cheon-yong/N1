@@ -174,7 +174,7 @@ void UN1CameraMode_ThirdPerson::PreventCameraPenetration(AActor const& ViewTarge
 
 	SphereParams.AddIgnoredActor(&ViewTarget);
 
-	//TODO ILyraCameraTarget.GetIgnoredActorsForCameraPentration();
+	//TODO IN1CameraTarget.GetIgnoredActorsForCameraPentration();
 	//if (IgnoreActorForCameraPenetration)
 	//{
 	//	SphereParams.AddIgnoredActor(IgnoreActorForCameraPenetration);

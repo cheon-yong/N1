@@ -12,7 +12,7 @@ class UObject;
 struct FFrame;
 
 /**
- * FLyraInputAction
+ * FN1InputAction
  *
  *	Struct used to map a input action to a gameplay input tag.
  */

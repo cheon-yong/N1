@@ -6,6 +6,6 @@
 UN1PawnData::UN1PawnData(const FObjectInitializer& ObjectInitializer)
 {
 	PawnClass = nullptr;
-	/*InputConfig = nullptr;
-	DefaultCameraMode = nullptr;*/
+	InputConfig = nullptr;
+	DefaultCameraMode = nullptr;
 }

@@ -69,7 +69,7 @@ void UN1TeamSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	// About cheat
 	/*auto AddTeamCheats = [](UCheatManager* CheatManager)
 		{
-			CheatManager->AddCheatManagerExtension(NewObject<ULyraTeamCheats>(CheatManager));
+			CheatManager->AddCheatManagerExtension(NewObject<UN1TeamCheats>(CheatManager));
 		};
 
 	CheatManagerRegistrationHandle = UCheatManager::RegisterForOnCheatManagerCreated(FOnCheatManagerCreated::FDelegate::CreateLambda(AddTeamCheats));*/

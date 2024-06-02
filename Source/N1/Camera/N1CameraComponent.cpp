@@ -94,7 +94,7 @@ void UN1CameraComponent::DrawDebug(UCanvas* Canvas) const
 
 	DisplayDebugManager.SetFont(GEngine->GetSmallFont());
 	DisplayDebugManager.SetDrawColor(FColor::Yellow);
-	DisplayDebugManager.DrawString(FString::Printf(TEXT("LyraCameraComponent: %s"), *GetNameSafe(GetTargetActor())));
+	DisplayDebugManager.DrawString(FString::Printf(TEXT("N1CameraComponent: %s"), *GetNameSafe(GetTargetActor())));
 
 	DisplayDebugManager.SetDrawColor(FColor::White);
 	DisplayDebugManager.DrawString(FString::Printf(TEXT("   Location: %s"), *GetComponentLocation().ToCompactString()));

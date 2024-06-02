@@ -18,12 +18,12 @@ class N1_API AN1PlayerBotController : public AModularAIController, public IN1Tea
 public:
 	AN1PlayerBotController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	//~ILyraTeamAgentInterface interface
+	//~IN1TeamAgentInterface interface
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	virtual FOnN1TeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
 	ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
-	//~End of ILyraTeamAgentInterface interface
+	//~End of IN1TeamAgentInterface interface
 
 	// Attempts to restart this controller (e.g., to respawn it)
 	void ServerRestartController();

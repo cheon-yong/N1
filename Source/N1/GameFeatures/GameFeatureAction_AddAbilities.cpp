@@ -244,10 +244,10 @@ void UGameFeatureAction_AddAbilities::RemoveActorAbilities(AActor* Actor, FPerCo
 				AbilitySystemComponent->SetRemoveAbilityOnEnd(AbilityHandle);
 			}
 
-			UN1AbilitySystemComponent* LyraASC = CastChecked<UN1AbilitySystemComponent>(AbilitySystemComponent);
+			UN1AbilitySystemComponent* N1ASC = CastChecked<UN1AbilitySystemComponent>(AbilitySystemComponent);
 			for (FN1AbilitySet_GrantedHandles& SetHandle : ActorExtensions->AbilitySetHandles)
 			{
-				SetHandle.TakeFromAbilitySystem(LyraASC);
+				SetHandle.TakeFromAbilitySystem(N1ASC);
 			}
 		}
 

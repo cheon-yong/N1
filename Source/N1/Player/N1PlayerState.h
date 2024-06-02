@@ -81,11 +81,11 @@ public:
 
 	void SetPawnData(const UN1PawnData* InPawnData);
 
-	//~ILyraTeamAgentInterface interface
+	//~IN1TeamAgentInterface interface
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	virtual FOnN1TeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
-	//~End of ILyraTeamAgentInterface interface
+	//~End of IN1TeamAgentInterface interface
 
 	/** Returns the Squad ID of the squad the player belongs to. */
 	UFUNCTION(BlueprintCallable)
@@ -121,7 +121,7 @@ public:
 
 	// Send a message to just this player
 	// (use only for client notifications like accolades, quest toasts, etc... that can handle being occasionally lost)
-	UFUNCTION(Client, Unreliable, BlueprintCallable, Category = "Lyra|PlayerState")
+	UFUNCTION(Client, Unreliable, BlueprintCallable, Category = "N1|PlayerState")
 	void ClientBroadcastMessage(const FN1VerbMessage Message);
 
 	// Gets the replicated view rotation of this player, used for spectating

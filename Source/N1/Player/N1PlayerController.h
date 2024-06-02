@@ -19,6 +19,13 @@ class N1_API AN1PlayerController : public ACommonPlayerController
 public:
 	AN1PlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	UFUNCTION(BlueprintCallable, Category = "N1|Character")
+	void SetIsAutoRunning(const bool bEnabled);
+
+	UFUNCTION(BlueprintCallable, Category = "N1|Character")
+	bool GetIsAutoRunning() const;
+
+
 protected:
 	virtual void PostInitializeComponents() override;
 
@@ -30,8 +37,25 @@ protected:
 
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 
+	void OnStartAutoRun();
+
+	void OnEndAutoRun();
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnStartAutoRun"))
+	void K2_OnStartAutoRun();
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnEndAutoRun"))
+	void K2_OnEndAutoRun();
+
+	
+
+
 	AN1PlayerState* GetN1PlayerState() const;
 
 	UN1AbilitySystemComponent* GetN1AbilitySystemComponent() const;
 
+public:
+
+protected:
+	bool bHideViewTargetPawnNextFrame = false;
 };

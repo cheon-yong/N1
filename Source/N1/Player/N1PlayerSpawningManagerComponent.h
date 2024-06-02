@@ -42,11 +42,11 @@ protected:
 
 private:
 
-	/** We proxy these calls from ALyraGameMode, to this component so that each experience can more easily customize the respawn system they want. */
+	/** We proxy these calls from AN1GameMode, to this component so that each experience can more easily customize the respawn system they want. */
 	AActor* ChoosePlayerStart(AController* Player);
 	void FinishRestartPlayer(AController* NewPlayer, const FRotator& StartRotation);
-	friend class ALyraGameMode;
-	/** ~ALyraGameMode */
+	friend class AN1GameMode;
+	/** ~AN1GameMode */
 
 	UPROPERTY(Transient)
 	TArray<TWeakObjectPtr<AN1PlayerStart>> CachedPlayerStarts;

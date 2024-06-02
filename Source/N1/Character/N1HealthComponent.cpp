@@ -47,21 +47,21 @@ void UN1HealthComponent::InitializeWithAbilitySystem(UN1AbilitySystemComponent* 
 
 	if (AbilitySystemComponent)
 	{
-		UE_LOG(LogN1, Error, TEXT("LyraHealthComponent: Health component for owner [%s] has already been initialized with an ability system."), *GetNameSafe(Owner));
+		UE_LOG(LogN1, Error, TEXT("N1HealthComponent: Health component for owner [%s] has already been initialized with an ability system."), *GetNameSafe(Owner));
 		return;
 	}
 
 	AbilitySystemComponent = InASC;
 	if (!AbilitySystemComponent)
 	{
-		UE_LOG(LogN1, Error, TEXT("LyraHealthComponent: Cannot initialize health component for owner [%s] with NULL ability system."), *GetNameSafe(Owner));
+		UE_LOG(LogN1, Error, TEXT("N1HealthComponent: Cannot initialize health component for owner [%s] with NULL ability system."), *GetNameSafe(Owner));
 		return;
 	}
 
 	HealthSet = AbilitySystemComponent->GetSet<UN1HealthSet>();
 	if (!HealthSet)
 	{
-		UE_LOG(LogN1, Error, TEXT("LyraHealthComponent: Cannot initialize health component for owner [%s] with NULL health set on the ability system."), *GetNameSafe(Owner));
+		UE_LOG(LogN1, Error, TEXT("N1HealthComponent: Cannot initialize health component for owner [%s] with NULL health set on the ability system."), *GetNameSafe(Owner));
 		return;
 	}
 
@@ -177,7 +177,7 @@ void UN1HealthComponent::DamageSelfDestruct(bool bFellOutOfWorld)
 
 		if (!Spec)
 		{
-			UE_LOG(LogN1, Error, TEXT("LyraHealthComponent: DamageSelfDestruct failed for owner [%s]. Unable to make outgoing spec for [%s]."), *GetNameSafe(GetOwner()), *GetNameSafe(DamageGE));
+			UE_LOG(LogN1, Error, TEXT("N1HealthComponent: DamageSelfDestruct failed for owner [%s]. Unable to make outgoing spec for [%s]."), *GetNameSafe(GetOwner()), *GetNameSafe(DamageGE));
 			return;
 		}
 
@@ -273,7 +273,7 @@ void UN1HealthComponent::OnRep_DeathState(EN1DeathState OldDeathState)
 	if (OldDeathState > NewDeathState)
 	{
 		// The server is trying to set us back but we've already predicted past the server state.
-		UE_LOG(LogN1, Warning, TEXT("LyraHealthComponent: Predicted past server death state [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
+		UE_LOG(LogN1, Warning, TEXT("N1HealthComponent: Predicted past server death state [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
 		return;
 	}
 
@@ -290,7 +290,7 @@ void UN1HealthComponent::OnRep_DeathState(EN1DeathState OldDeathState)
 		}
 		else
 		{
-			UE_LOG(LogN1, Error, TEXT("LyraHealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
+			UE_LOG(LogN1, Error, TEXT("N1HealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
 		}
 	}
 	else if (OldDeathState == EN1DeathState::DeathStarted)
@@ -301,9 +301,9 @@ void UN1HealthComponent::OnRep_DeathState(EN1DeathState OldDeathState)
 		}
 		else
 		{
-			UE_LOG(LogN1, Error, TEXT("LyraHealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
+			UE_LOG(LogN1, Error, TEXT("N1HealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
 		}
 	}
 
-	ensureMsgf((DeathState == NewDeathState), TEXT("LyraHealthComponent: Death transition failed [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
+	ensureMsgf((DeathState == NewDeathState), TEXT("N1HealthComponent: Death transition failed [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
 }

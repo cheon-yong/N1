@@ -20,7 +20,10 @@ public class N1 : ModuleRules
 			"Niagara",
 			"NavigationSystem",
 			"AIModule",
+			"GameFeatures",
+			"GameplayAbilities",
 			"GameplayTasks",
+			"GameplayTags",
 			"ModularGameplayActors",
 			"CommonUser",
 			"CommonGame",
@@ -32,11 +35,6 @@ public class N1 : ModuleRules
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
-			"GameFeatures",
-			"GameplayAbilities",
-			"GameplayTasks",
-			"GameplayTags",
-			
 		});
 
 		SetupIrisSupport(Target);

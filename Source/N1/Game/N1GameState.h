@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "GameFramework/GameStateBase.h"
-#include "ModularGameState.h"
 #include "AbilitySystemInterface.h"
+#include "ModularGameState.h"
 
 #include "N1GameState.generated.h"
 
@@ -47,7 +46,7 @@ public:
 
 	// Gets the ability system component used for game wide things
 	UFUNCTION(BlueprintCallable, Category = "N1|GameState")
-	UN1AbilitySystemComponent* GetLyraAbilitySystemComponent() const { return AbilitySystemComponent; }
+	UN1AbilitySystemComponent* GetN1AbilitySystemComponent() const { return AbilitySystemComponent; }
 
 	// Send a message that all clients will (probably) get
 	// (use only for client notifications like eliminations, server join messages, etc... that can handle being lost)

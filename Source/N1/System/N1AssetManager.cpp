@@ -86,7 +86,7 @@ UPrimaryDataAsset* UN1AssetManager::LoadGameDataOfClass(TSubclassOf<UPrimaryData
 	if (!DataClassPath.IsNull())
 	{
 #if WITH_EDITOR
-		FScopedSlowTask SlowTask(0, FText::Format(NSLOCTEXT("LyraEditor", "BeginLoadingGameDataTask", "Loading GameData {0}"), FText::FromName(DataClass->GetFName())));
+		FScopedSlowTask SlowTask(0, FText::Format(NSLOCTEXT("N1Editor", "BeginLoadingGameDataTask", "Loading GameData {0}"), FText::FromName(DataClass->GetFName())));
 		const bool bShowCancelButton = false;
 		const bool bAllowInPIE = true;
 		SlowTask.MakeDialog(bShowCancelButton, bAllowInPIE);

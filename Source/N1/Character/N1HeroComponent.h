@@ -1,59 +1,116 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "Components/GameFrameworkInitStateInterface.h"
 #include "Components/PawnComponent.h"
-#include "Input/N1MappableConfigPair.h"
 #include "GameFeatures/GameFeatureAction_AddContext.h"
+#include "GameplayAbilitySpecHandle.h"
 #include "N1HeroComponent.generated.h"
 
+namespace EEndPlayReason { enum Type : int; }
+struct FLoadedMappableConfigPair;
+struct FMappableConfigPair;
+
+class UGameFrameworkComponentManager;
+class UInputComponent;
 class UN1CameraMode;
+class UN1InputConfig;
+class UObject;
+struct FActorInitStateChangedParams;
+struct FFrame;
+struct FGameplayTag;
 struct FInputActionValue;
-//struct FN1nputMappingContextAndPriority;
+
 /**
- * 
+ * Component that sets up input and camera handling for player controlled pawns (or bots that simulate players).
+ * This depends on a PawnExtensionComponent to coordinate initialization.
  */
 UCLASS(Blueprintable, Meta = (BlueprintSpawnableComponent))
 class N1_API UN1HeroComponent : public UPawnComponent, public IGameFrameworkInitStateInterface
 {
 	GENERATED_BODY()
-	
-public:
-	UN1HeroComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	public:
+
+	UN1HeroComponent(const FObjectInitializer& ObjectInitializer);
+
+	/** Returns the hero component if one exists on the specified actor. */
+	UFUNCTION(BlueprintPure, Category = "N1|Hero")
+	static UN1HeroComponent* FindHeroComponent(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UN1HeroComponent>() : nullptr); }
+
+	/** Overrides the camera from an active gameplay ability */
+	void SetAbilityCameraMode(TSubclassOf<UN1CameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle);
+
+	/** Clears the camera override if it is set */
+	void ClearAbilityCameraMode(const FGameplayAbilitySpecHandle& OwningSpecHandle);
+
+	/** Adds mode-specific input config */
+	void AddAdditionalInputConfig(const UN1InputConfig* InputConfig);
+
+	/** Removes a mode-specific input config if it has been added */
+	void RemoveAdditionalInputConfig(const UN1InputConfig* InputConfig);
+
+	/** True if this is controlled by a real player and has progressed far enough in initialization where additional input bindings can be added */
+	bool IsReadyToBindInputs() const;
+
+	/** The name of the extension event sent via UGameFrameworkComponentManager when ability inputs are ready to bind */
+	static const FName NAME_BindInputsNow;
+
+	/** The name of this component-implemented feature */
 	static const FName NAME_ActorFeatureName;
+
+	//~ Begin IGameFrameworkInitStateInterface interface
+	virtual FName GetFeatureName() const override { return NAME_ActorFeatureName; }
+	virtual bool CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const override;
+	virtual void HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) override;
+	virtual void OnActorInitStateChanged(const FActorInitStateChangedParams& Params) override;
+	virtual void CheckDefaultInitialization() override;
+	//~ End IGameFrameworkInitStateInterface interface
+
+protected:
+
 	virtual void OnRegister() override;
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) final;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	// GameFrameworkInitState
-	virtual FName GetFeatureName() const final { return NAME_ActorFeatureName; }
-	virtual void OnActorInitStateChanged(const FActorInitStateChangedParams& Params) final;
-	virtual bool CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState,
-		FGameplayTag DesiredState) const final;
-	virtual void HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag
-		CurrentState, FGameplayTag DesiredState) final;
-	virtual void CheckDefaultInitialization() final;
-
-	// Camera
-	TSubclassOf<UN1CameraMode> DetermineCameraMode() const;
-
-	// Input
-	void InitializePlayerInput(UInputComponent* PlayerInputComponent);
+	virtual void InitializePlayerInput(UInputComponent* PlayerInputComponent);
 
 	void Input_AbilityInputTagPressed(FGameplayTag InputTag);
 	void Input_AbilityInputTagReleased(FGameplayTag InputTag);
 
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_LookMouse(const FInputActionValue& InputActionValue);
-public:
-	/*UPROPERTY(EditAnywhere)
-	TArray<FN1MappableConfigPair> DefaultConfigs;*/
+	void Input_LookStick(const FInputActionValue& InputActionValue);
+	void Input_Crouch(const FInputActionValue& InputActionValue);
+	void Input_AutoRun(const FInputActionValue& InputActionValue);
 
-	static const FName NAME_BindInputsNow;
+	TSubclassOf<UN1CameraMode> DetermineCameraMode() const;
+
+	void OnInputConfigActivated(const FLoadedMappableConfigPair& ConfigPair);
+	void OnInputConfigDeactivated(const FLoadedMappableConfigPair& ConfigPair);
+
+protected:
+
+	/**
+	 * Input Configs that should be added to this player when initializing the input. These configs
+	 * will NOT be registered with the settings because they are added at runtime. If you want the config
+	 * pair to be in the settings, then add it via the GameFeatureAction_AddInputConfig
+	 *
+	 * NOTE: You should only add to this if you do not have a game feature plugin accessible to you.
+	 * If you do, then use the GameFeatureAction_AddInputConfig instead.
+	 */
 
 	UPROPERTY(EditAnywhere)
 	TArray<FInputMappingContextAndPriority> DefaultInputMappings;
 
+	/** Camera mode set by an ability. */
+	UPROPERTY()
+	TSubclassOf<UN1CameraMode> AbilityCameraMode;
+
+	/** Spec handle for the last ability to set a camera mode. */
+	FGameplayAbilitySpecHandle AbilityCameraModeOwningSpecHandle;
+
+	/** True when player input bindings have been applied, will never be true for non - players */
+	bool bReadyToBindInputs;
 };

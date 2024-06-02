@@ -20,7 +20,7 @@ class AN1GameMode : public AModularGameModeBase
 public:
 	AN1GameMode(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	// About Lyra Experience
+	// About N1 Experience
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override final;
 	void HandleMatchAssignmentIfNotExpectingOne();
 	virtual void InitGameState() override final;

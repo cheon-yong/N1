@@ -16,6 +16,7 @@
 #include "Player/N1PlayerState.h"
 #include "Camera/N1CameraComponent.h"
 #include "AbilitySystem/N1AbilitySystemComponent.h"
+#include "N1GameplayTags.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,6 +53,8 @@ AN1Character::AN1Character(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	
 	PawnExtComponent = CreateDefaultSubobject<UN1PawnExtensionComponent>(TEXT("PawnExtensionComponent"));
+	PawnExtComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
+	PawnExtComponent->OnAbilitySystemUninitialized_Register(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized));
 
 	CameraComponent = CreateDefaultSubobject<UN1CameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetRelativeLocation(FVector(-300.0f, 0.0f, 75.0f));
@@ -93,15 +96,42 @@ UAbilitySystemComponent* AN1Character::GetAbilitySystemComponent() const
 	return PawnExtComponent->GetN1AbilitySystemComponent();
 }
 
+void AN1Character::ToggleCrouch()
+{
+	const UN1CharacterMovementComponent* N1MoveComp = CastChecked<UN1CharacterMovementComponent>(GetCharacterMovement());
+
+	if (bIsCrouched || N1MoveComp->bWantsToCrouch)
+	{
+		UnCrouch();
+	}
+	else if (N1MoveComp->IsMovingOnGround())
+	{
+		Crouch();
+	}
+}
+
 void AN1Character::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
 }
 
-void AN1Character::PostInitializeComponents()
+void AN1Character::OnAbilitySystemInitialized()
 {
-	Super::PostInitializeComponents();
+	UN1AbilitySystemComponent* N1ASC = GetN1AbilitySystemComponent();
+	check(N1ASC);
+
+	HealthComponent->InitializeWithAbilitySystem(N1ASC);
+
+	InitializeGameplayTags();
+}
+void AN1Character::OnAbilitySystemUninitialized()
+{
+	HealthComponent->UninitializeFromAbilitySystem();
+}
+void AN1Character::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
 
 }
 
@@ -118,6 +148,32 @@ void AN1Character::OnRep_Owner()
 void AN1Character::PostNetInit()
 {
 	Super::PostNetInit();
+}
+
+void AN1Character::InitializeGameplayTags()
+{
+	// Clear tags that may be lingering on the ability system from the previous pawn.
+	if (UN1AbilitySystemComponent* N1ASC = GetN1AbilitySystemComponent())
+	{
+		for (const TPair<uint8, FGameplayTag>& TagMapping : N1GameplayTags::MovementModeTagMap)
+		{
+			if (TagMapping.Value.IsValid())
+			{
+				N1ASC->SetLooseGameplayTagCount(TagMapping.Value, 0);
+			}
+		}
+
+		for (const TPair<uint8, FGameplayTag>& TagMapping : N1GameplayTags::CustomMovementModeTagMap)
+		{
+			if (TagMapping.Value.IsValid())
+			{
+				N1ASC->SetLooseGameplayTagCount(TagMapping.Value, 0);
+			}
+		}
+
+		UN1CharacterMovementComponent* N1MoveComp = CastChecked<UN1CharacterMovementComponent>(GetCharacterMovement());
+		SetMovementModeTag(N1MoveComp->MovementMode, N1MoveComp->CustomMovementMode, true);
+	}
 }
 
 void AN1Character::DisableMovementAndCollision()
@@ -162,6 +218,63 @@ void AN1Character::UninitAndDestroy()
 	}
 
 	SetActorHiddenInGame(true);
+}
+
+void AN1Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	UN1CharacterMovementComponent* N1MoveComp = CastChecked<UN1CharacterMovementComponent>(GetCharacterMovement());
+
+	SetMovementModeTag(PrevMovementMode, PreviousCustomMode, false);
+	SetMovementModeTag(N1MoveComp->MovementMode, N1MoveComp->CustomMovementMode, true);
+}
+
+void AN1Character::SetMovementModeTag(EMovementMode MovementMode, uint8 CustomMovementMode, bool bTagEnabled)
+{
+	if (UN1AbilitySystemComponent* N1ASC = GetN1AbilitySystemComponent())
+	{
+		const FGameplayTag* MovementModeTag = nullptr;
+		if (MovementMode == MOVE_Custom)
+		{
+			MovementModeTag = N1GameplayTags::CustomMovementModeTagMap.Find(CustomMovementMode);
+		}
+		else
+		{
+			MovementModeTag = N1GameplayTags::MovementModeTagMap.Find(MovementMode);
+		}
+
+		if (MovementModeTag && MovementModeTag->IsValid())
+		{
+			N1ASC->SetLooseGameplayTagCount(*MovementModeTag, (bTagEnabled ? 1 : 0));
+		}
+	}
+}
+
+void AN1Character::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+	if (UN1AbilitySystemComponent* N1ASC = GetN1AbilitySystemComponent())
+	{
+		N1ASC->SetLooseGameplayTagCount(N1GameplayTags::Status_Crouching, 1);
+	}
+
+
+	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+}
+
+void AN1Character::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+	if (UN1AbilitySystemComponent* N1ASC = GetN1AbilitySystemComponent())
+	{
+		N1ASC->SetLooseGameplayTagCount(N1GameplayTags::Status_Crouching, 0);
+	}
+
+	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+}
+
+bool AN1Character::CanJumpInternal_Implementation() const
+{
+	return false;
 }
 
 void AN1Character::OnDeathStarted(AActor* OwningActor)

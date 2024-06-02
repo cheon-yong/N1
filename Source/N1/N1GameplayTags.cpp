@@ -67,8 +67,8 @@ namespace N1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Movement_Mode_Swimming, "Movement.Mode.Swimming", "Default Character movement tag");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Movement_Mode_Flying, "Movement.Mode.Flying", "Default Character movement tag");
 
-	// When extending Lyra, you can create your own movement modes but you need to update GetCustomMovementModeTagMap()
-	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Movement_Mode_Custom, "Movement.Mode.Custom", "This is invalid and should be replaced with custom tags.  See LyraGameplayTags::CustomMovementModeTagMap.");
+	// When extending N1, you can create your own movement modes but you need to update GetCustomMovementModeTagMap()
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Movement_Mode_Custom, "Movement.Mode.Custom", "This is invalid and should be replaced with custom tags.  See N1GameplayTags::CustomMovementModeTagMap.");
 
 	// Gameplay Cue
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(GameplayCue_Weapon_Pistol, "GameplayCue.Weapon.Pistol", "Use weapon pistol");

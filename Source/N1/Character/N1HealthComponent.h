@@ -18,7 +18,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FN1Health_DeathEvent, AActor*, Ownin
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FN1Health_AttributeChanged, UN1HealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor*, Instigator);
 
 /**
- * ELyraDeathState
+ * EN1DeathState
  *
  *	Defines current state of death.
  */

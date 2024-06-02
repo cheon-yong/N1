@@ -1,37 +1,38 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
-#include "UObject/Object.h"
-#include "UObject/UObjectGlobals.h"
-#include "Containers/Array.h"
-#include "N1EquipmentDefinition.h"
+#include "Engine/World.h"
+
 #include "N1EquipmentInstance.generated.h"
 
+class AActor;
+class APawn;
+struct FFrame;
+struct FN1EquipmentActorToSpawn;
+
 /**
- * 
+ * UN1EquipmentInstance
+ *
+ * A piece of equipment spawned and applied to a pawn
  */
 UCLASS(BlueprintType, Blueprintable)
-class N1_API UN1EquipmentInstance : public UObject
+class UN1EquipmentInstance : public UObject
 {
 	GENERATED_BODY()
-	
-public:
+
+	public:
 	UN1EquipmentInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	UFUNCTION(BlueprintImplementableEvent, Category = Equipment, meta = (DisplayName = "OnEquipped"))
-	void K2_OnEquipped();
-	
-	UFUNCTION(BlueprintImplementableEvent, Category = Equipment, meta = (DisplayName = "OnUnequipped"))
-	void K2_OnUnequipped();
-	
-	virtual void OnEquipped();
-	
-	virtual void OnUnequipped();
+	//~UObject interface
+	virtual bool IsSupportedForNetworking() const override { return true; }
+	virtual UWorld* GetWorld() const override final;
+	//~End of UObject interface
 
-	void SpawnEquipmentActors(const TArray<FN1EquipmentActorToSpawn>& ActorsToSpawn);
+	UFUNCTION(BlueprintPure, Category = Equipment)
+	UObject* GetInstigator() const { return Instigator; }
 
-	void DestroyEquipmentActors();
+	void SetInstigator(UObject* InInstigator) { Instigator = InInstigator; }
 
 	UFUNCTION(BlueprintPure, Category = Equipment)
 	APawn* GetPawn() const;
@@ -42,13 +43,32 @@ public:
 	UFUNCTION(BlueprintPure, Category = Equipment)
 	TArray<AActor*> GetSpawnedActors() const { return SpawnedActors; }
 
-	UFUNCTION(BlueprintPure, Category = Equipment)
-	UObject* GetInstigator() const { return Instigator; }
+	virtual void SpawnEquipmentActors(const TArray<FN1EquipmentActorToSpawn>& ActorsToSpawn);
+	virtual void DestroyEquipmentActors();
 
-public:
-	UPROPERTY()
+	virtual void OnEquipped();
+	virtual void OnUnequipped();
+
+protected:
+#if UE_WITH_IRIS
+	/** Register all replication fragments */
+	virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
+#endif // UE_WITH_IRIS
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Equipment, meta = (DisplayName = "OnEquipped"))
+	void K2_OnEquipped();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Equipment, meta = (DisplayName = "OnUnequipped"))
+	void K2_OnUnequipped();
+
+private:
+	UFUNCTION()
+	void OnRep_Instigator();
+
+private:
+	UPROPERTY(ReplicatedUsing = OnRep_Instigator)
 	TObjectPtr<UObject> Instigator;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<TObjectPtr<AActor>> SpawnedActors;
 };

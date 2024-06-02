@@ -18,6 +18,7 @@ public class ShooterCoreRuntime : ModuleRules
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
+				
 			}
 			);
 			
@@ -26,6 +27,9 @@ public class ShooterCoreRuntime : ModuleRules
 			new string[]
 			{
 				"Core",
+				"N1",
+				"ModularGameplay",
+				"CommonGame",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

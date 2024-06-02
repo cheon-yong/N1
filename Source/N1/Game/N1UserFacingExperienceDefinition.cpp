@@ -7,7 +7,7 @@
 #include "UObject/NameTypes.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
-//#include "Replays/LyraReplaySubsystem.h"
+//#include "Replays/N1ReplaySubsystem.h"
 
 UCommonSession_HostSessionRequest* UN1UserFacingExperienceDefinition::CreateHostingRequest(const UObject* WorldContextObject) const
 {
@@ -36,7 +36,7 @@ UCommonSession_HostSessionRequest* UN1UserFacingExperienceDefinition::CreateHost
 	Result->ExtraArgs.Add(TEXT("Experience"), ExperienceName);
 	Result->MaxPlayerCount = MaxPlayerCount;
 
-	/*if (ULyraReplaySubsystem::DoesPlatformSupportReplays())
+	/*if (UN1ReplaySubsystem::DoesPlatformSupportReplays())
 	{
 		if (bRecordReplay)
 		{

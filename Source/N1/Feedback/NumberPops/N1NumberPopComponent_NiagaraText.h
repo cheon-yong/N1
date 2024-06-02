@@ -21,9 +21,9 @@ class N1_API UN1NumberPopComponent_NiagaraText : public UN1NumberPopComponent
 public:
 	UN1NumberPopComponent_NiagaraText(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	//~ULyraNumberPopComponent interface
+	//~UN1NumberPopComponent interface
 	virtual void AddNumberPop(const FN1NumberPopRequest& NewRequest) override;
-	//~End of ULyraNumberPopComponent interface
+	//~End of UN1NumberPopComponent interface
 
 protected:
 	TArray<int32> DamageNumberArray;
