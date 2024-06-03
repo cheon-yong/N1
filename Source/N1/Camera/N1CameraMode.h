@@ -33,7 +33,7 @@ public:
 class UN1CameraComponent;
 
 UCLASS(Abstract, NotBlueprintable)
-class UN1CameraMode : public UObject
+class N1_API UN1CameraMode : public UObject
 {
 	GENERATED_BODY()
 	
