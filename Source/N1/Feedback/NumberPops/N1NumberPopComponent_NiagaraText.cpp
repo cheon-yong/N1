@@ -41,7 +41,7 @@ void UN1NumberPopComponent_NiagaraText::AddNumberPop(const FN1NumberPopRequest& 
 	NiagaraComp->Activate(false);
 	NiagaraComp->SetWorldLocation(NewRequest.WorldLocation);
 
-	UE_LOG(LogN1, Log, TEXT("DamageHit location : %s"), *(NewRequest.WorldLocation.ToString()));
+	UE_LOG(LogN1, Log, TEXT("DamageHit location : %s, Damage : %d"), *(NewRequest.WorldLocation.ToString()), LocalDamage);
 	//Add Damage information to the current Niagara list - Damage informations are packed inside a FVector4 where XYZ = Position, W = Damage
 	TArray<FVector4> DamageList = UNiagaraDataInterfaceArrayFunctionLibrary::GetNiagaraArrayVector4(NiagaraComp, Style->NiagaraArrayName);
 	DamageList.Add(FVector4(NewRequest.WorldLocation.X, NewRequest.WorldLocation.Y, NewRequest.WorldLocation.Z, LocalDamage));
