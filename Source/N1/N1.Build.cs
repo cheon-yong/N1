@@ -8,14 +8,18 @@ public class N1 : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicIncludePaths.AddRange(new string[] { "N1" });
+		PublicIncludePaths.AddRange(new string[] { 
+			"N1" 
+		});
 
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			"Core",
 			"CoreUObject",
+			"RenderCore",
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
+			"SignificanceManager",
 			"UMG",
 			"Niagara",
 			"NavigationSystem",
@@ -31,7 +35,9 @@ public class N1 : ModuleRules
 			"UIExtension",
 			"GameplayMessageRuntime",
 			"NetCore",
-			"PhysicsCore"
+			"PhysicsCore",
+			"AudioMixer",
+			"AudioModulation"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {

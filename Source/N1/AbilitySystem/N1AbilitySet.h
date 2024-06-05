@@ -26,7 +26,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UN1GameplayAbility> Ability = nullptr;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Meta = (Categories = "InputTag"))
 	FGameplayTag InputTag;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -98,7 +98,7 @@ public:
 	void GiveToAbilitySystem(UN1AbilitySystemComponent* ASC, FN1AbilitySet_GrantedHandles* OutGrantedHandles, UObject* SourceObject = nullptr) const;
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Abilities", meta = (TitleProperty = Ability))
 	TArray<FN1AbilitySet_GameplayAbility> GrantedGameplayAbilities;
 
 	// Gameplay effects to grant when this ability set is granted.

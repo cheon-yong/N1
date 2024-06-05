@@ -70,6 +70,7 @@ UN1AbilitySet::UN1AbilitySet(const FObjectInitializer& ObjectInitializer)
 {
 }
 
+PRAGMA_DISABLE_OPTIMIZATION
 void UN1AbilitySet::GiveToAbilitySystem(UN1AbilitySystemComponent* ASC, FN1AbilitySet_GrantedHandles* OutGrantedHandles, UObject* SourceObject) const
 {
 	check(ASC);
@@ -144,5 +145,5 @@ void UN1AbilitySet::GiveToAbilitySystem(UN1AbilitySystemComponent* ASC, FN1Abili
 			OutGrantedHandles->AddAttributeSet(NewSet);
 		}
 	}
-
 }
+PRAGMA_ENABLE_OPTIMIZATION

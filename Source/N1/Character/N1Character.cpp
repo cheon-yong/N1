@@ -274,7 +274,7 @@ void AN1Character::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdj
 
 bool AN1Character::CanJumpInternal_Implementation() const
 {
-	return false;
+	return JumpIsAllowedInternal();
 }
 
 void AN1Character::OnDeathStarted(AActor* OwningActor)
