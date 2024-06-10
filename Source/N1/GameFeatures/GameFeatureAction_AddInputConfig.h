@@ -2,12 +2,15 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+
+#include "GameplayTagContainer.h"
+#include "UObject/WeakObjectPtr.h"
 #include "GameFeatures/GameFeatureAction_WorldAction.h"
-#include <Input/N1MappableConfigPair.h>
 
 #include "GameFeatureAction_AddInputConfig.generated.h"
 
+
+struct FMappableConfigPair;
 
 struct FComponentRequestHandle;
 class APawn;
@@ -42,5 +45,5 @@ private:
 	TMap<FGameFeatureStateChangeContext, FPerContextData> ContextData;
 
 	UPROPERTY(EditAnywhere)
-	TArray<FN1MappableConfigPair> InputConfigs;
+	TArray<FMappableConfigPair> InputConfigs;
 };

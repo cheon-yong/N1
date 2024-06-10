@@ -7,6 +7,17 @@
 #include "AbilitySystem/N1AbilitySystemComponent.h"
 #include "N1GameplayTags.h"
 
+namespace N1
+{
+	namespace Input
+	{
+		static int32 ShouldAlwaysPlayForceFeedback = 0;
+		static FAutoConsoleVariableRef CVarShouldAlwaysPlayForceFeedback(TEXT("N1PC.ShouldAlwaysPlayForceFeedback"),
+			ShouldAlwaysPlayForceFeedback,
+			TEXT("Should force feedback effects be played, even if the last input device was not a gamepad?"));
+	}
+}
+
 AN1PlayerController::AN1PlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {

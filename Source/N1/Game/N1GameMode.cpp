@@ -25,12 +25,6 @@
 AN1GameMode::AN1GameMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter"));
-	if (PlayerPawnBPClass.Class != NULL)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
-
 	GameStateClass = AN1GameState::StaticClass();
 	PlayerControllerClass = AN1PlayerController::StaticClass();
 	PlayerStateClass = AN1PlayerState::StaticClass();

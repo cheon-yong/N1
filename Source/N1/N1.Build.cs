@@ -12,8 +12,12 @@ public class N1 : ModuleRules
 			"N1" 
 		});
 
-		PublicDependencyModuleNames.AddRange(new string[] { 
+		PublicDependencyModuleNames.AddRange(new string[] {
+			"AudioModulation",
+			"ApplicationCore",
 			"Core",
+			"Slate",
+			"SlateCore",
 			"CoreUObject",
 			"RenderCore",
 			"Engine",
@@ -28,19 +32,25 @@ public class N1 : ModuleRules
 			"GameplayAbilities",
 			"GameplayTasks",
 			"GameplayTags",
+			"GameSettings",
 			"ModularGameplayActors",
 			"CommonUser",
 			"CommonGame",
 			"CommonUI",
+			"CommonInput",
 			"UIExtension",
 			"GameplayMessageRuntime",
 			"NetCore",
 			"PhysicsCore",
+			"CommonLoadingScreen",
 			"AudioMixer",
-			"AudioModulation"
+			"AudioModulation",
+			"GameSubtitles",
+			"PropertyPath"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
+			"DeveloperSettings",
 		});
 
 		SetupIrisSupport(Target);

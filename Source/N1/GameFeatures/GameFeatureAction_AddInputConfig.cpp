@@ -5,7 +5,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "PlayerMappableInputConfig.h"
 #include "Components/GameFrameworkComponentManager.h"
+#include "PlayerMappableInputConfig.h"
 #include "Character/N1HeroComponent.h"
+#include "Input/N1MappableConfigPair.h"
 
 void UGameFeatureAction_AddInputConfig::OnGameFeatureActivating(FGameFeatureActivatingContext& Context)
 {
@@ -72,9 +74,10 @@ void UGameFeatureAction_AddInputConfig::AddInputConfig(APawn* Pawn, FPerContextD
 		{
 			FModifyContextOptions Options = {};
 			Options.bIgnoreAllPressedKeysUntilRelease = false;
-			for (const FN1MappableConfigPair& Pair : InputConfigs)
+
+			for (const FMappableConfigPair& Pair : InputConfigs)
 			{
-				if (Pair.bShouldActivateAutomatically)
+				if (Pair.bShouldActivateAutomatically && Pair.CanBeActivated())
 				{
 					Subsystem->AddPlayerMappableConfig(Pair.Config.LoadSynchronous(), Options);
 				}
@@ -91,7 +94,7 @@ void UGameFeatureAction_AddInputConfig::RemoveInputConfig(APawn* Pawn, FPerConte
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 		{
-			for (const FN1MappableConfigPair& Pair : InputConfigs)
+			for (const FMappableConfigPair& Pair : InputConfigs)
 			{
 				Subsystem->RemovePlayerMappableConfig(Pair.Config.LoadSynchronous());
 			}

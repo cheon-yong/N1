@@ -18,6 +18,7 @@
 				"GameFeatures",
 				"CommonGame",
 				"CommonUI",
+				"DeveloperSettings",
 				"ModularGameplayActors"
 			]
 		}
@@ -39,6 +40,14 @@
 			"Enabled": true
 		},
 		{
+			"Name": "GameSettings",
+			"Enabled": true
+		},
+		{
+			"Name": "CommonLoadingScreen",
+			"Enabled": true
+		},
+		{
 			"Name": "CommonUser",
 			"Enabled": true
 		},
@@ -48,6 +57,10 @@
 		},
 		{
 			"Name": "UIExtension",
+			"Enabled": true
+		},
+		{
+			"Name": "GameSubtitles",
 			"Enabled": true
 		},
 		{
@@ -68,6 +81,10 @@
 		},
 		{
 			"Name": "AnimationLocomotionLibrary",
+			"Enabled": true
+		},
+		{
+			"Name": "AudioModulation",
 			"Enabled": true
 		}
 	]

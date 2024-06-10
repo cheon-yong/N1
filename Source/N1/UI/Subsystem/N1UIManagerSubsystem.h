@@ -14,5 +14,15 @@ class N1_API UN1UIManagerSubsystem : public UGameUIManagerSubsystem
 	GENERATED_BODY()
 	
 public:
+
 	UN1UIManagerSubsystem();
+
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+
+private:
+	bool Tick(float DeltaTime);
+	void SyncRootLayoutVisibilityToShowHUD();
+
+	FTSTicker::FDelegateHandle TickHandle;
 };
