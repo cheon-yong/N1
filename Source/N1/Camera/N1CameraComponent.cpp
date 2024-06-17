@@ -1,17 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
-
-#include "Camera/N1CameraComponent.h"
+#include "N1CameraComponent.h"
 
 #include "Engine/Canvas.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
-#include "Camera/N1CameraMode.h"
-#include <GameplayTagContainer.h>
-
+#include "N1CameraMode.h"
+#include "N1LogChannels.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(N1CameraComponent)
+
 
 UN1CameraComponent::UN1CameraComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -25,7 +24,10 @@ void UN1CameraComponent::OnRegister()
 	Super::OnRegister();
 
 	if (!CameraModeStack)
+	{
 		CameraModeStack = NewObject<UN1CameraModeStack>(this);
+		check(CameraModeStack);
+	}
 }
 
 void UN1CameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)
@@ -37,6 +39,7 @@ void UN1CameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& Desire
 	FN1CameraModeView CameraModeView;
 	CameraModeStack->EvaluateStack(DeltaTime, CameraModeView);
 
+	// Keep player controller in sync with the latest view.
 	if (APawn* TargetPawn = Cast<APawn>(GetTargetActor()))
 	{
 		if (APlayerController* PC = TargetPawn->GetController<APlayerController>())
@@ -44,8 +47,16 @@ void UN1CameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& Desire
 			PC->SetControlRotation(CameraModeView.ControlRotation);
 		}
 	}
+
+	// Apply any offset that was added to the field of view.
+	CameraModeView.FieldOfView += FieldOfViewOffset;
+	FieldOfViewOffset = 0.0f;
+
+	// Keep camera component in sync with the latest view.
 	SetWorldLocationAndRotation(CameraModeView.Location, CameraModeView.Rotation);
 	FieldOfView = CameraModeView.FieldOfView;
+
+	// Fill in desired view.
 	DesiredView.Location = CameraModeView.Location;
 	DesiredView.Rotation = CameraModeView.Rotation;
 	DesiredView.FOV = CameraModeView.FieldOfView;
@@ -56,12 +67,14 @@ void UN1CameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& Desire
 	DesiredView.bConstrainAspectRatio = bConstrainAspectRatio;
 	DesiredView.bUseFieldOfViewForLOD = bUseFieldOfViewForLOD;
 	DesiredView.ProjectionMode = ProjectionMode;
-	DesiredView.PostProcessBlendWeight = PostProcessBlendWeight;
 
+	// See if the CameraActor wants to override the PostProcess settings used.
+	DesiredView.PostProcessBlendWeight = PostProcessBlendWeight;
 	if (PostProcessBlendWeight > 0.0f)
 	{
 		DesiredView.PostProcessSettings = PostProcessSettings;
 	}
+
 
 	if (IsXRHeadTrackedCamera())
 	{
@@ -73,6 +86,7 @@ void UN1CameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& Desire
 void UN1CameraComponent::UpdateCameraModes()
 {
 	check(CameraModeStack);
+
 	if (CameraModeStack->IsStackActivate())
 	{
 		if (DetermineCameraModeDelegate.IsBound())
@@ -83,7 +97,6 @@ void UN1CameraComponent::UpdateCameraModes()
 			}
 		}
 	}
-	
 }
 
 void UN1CameraComponent::DrawDebug(UCanvas* Canvas) const
@@ -110,3 +123,5 @@ void UN1CameraComponent::GetBlendInfo(float& OutWeightOfTopLayer, FGameplayTag& 
 	check(CameraModeStack);
 	CameraModeStack->GetBlendInfo(/*out*/ OutWeightOfTopLayer, /*out*/ OutTagOfTopLayer);
 }
+
+

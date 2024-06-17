@@ -1,28 +1,55 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
+#include "Engine/World.h"
 #include "GameplayTagContainer.h"
 
 #include "N1CameraMode.generated.h"
 
+class AActor;
+class UCanvas;
+class UN1CameraComponent;
+
+/**
+ * EN1CameraModeBlendFunction
+ *
+ *	Blend function used for transitioning between camera modes.
+ */
 UENUM(BlueprintType)
 enum class EN1CameraModeBlendFunction : uint8
 {
+	// Does a simple linear interpolation.
 	Linear,
+
+	// Immediately accelerates, but smoothly decelerates into the target.  Ease amount controlled by the exponent.
 	EaseIn,
+
+	// Smoothly accelerates, but does not decelerate into the target.  Ease amount controlled by the exponent.
 	EaseOut,
+
+	// Smoothly accelerates and decelerates.  Ease amount controlled by the exponent.
 	EaseInOut,
-	COUNT
+
+	COUNT	UMETA(Hidden)
 };
 
+
+/**
+ * FN1CameraModeView
+ *
+ *	View data produced by the camera mode that is used to blend camera modes.
+ */
 struct FN1CameraModeView
 {
 public:
+
 	FN1CameraModeView();
+
 	void Blend(const FN1CameraModeView& Other, float OtherWeight);
 
 public:
+
 	FVector Location;
 	FRotator Rotation;
 	FRotator ControlRotation;
@@ -30,14 +57,17 @@ public:
 };
 
 
-class UN1CameraComponent;
-
+/**
+ * UN1CameraMode
+ *
+ *	Base class for all camera modes.
+ */
 UCLASS(Abstract, NotBlueprintable)
 class N1_API UN1CameraMode : public UObject
 {
 	GENERATED_BODY()
-	
-public:
+
+	public:
 
 	UN1CameraMode();
 
@@ -75,9 +105,6 @@ protected:
 
 	virtual void UpdateView(float DeltaTime);
 	virtual void UpdateBlending(float DeltaTime);
-
-
-public:
 
 protected:
 	// A tag that can be queried by gameplay code that cares when a kind of camera mode is active
@@ -124,41 +151,51 @@ protected:
 	uint32 bResetInterpolation : 1;
 };
 
+
 /**
- * 
+ * UN1CameraModeStack
+ *
+ *	Stack used for blending camera modes.
  */
 UCLASS()
 class UN1CameraModeStack : public UObject
 {
 	GENERATED_BODY()
-public:
-	UN1CameraModeStack(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
+	public:
+
+	UN1CameraModeStack();
 
 	void ActivateStack();
-
 	void DeactivateStack();
 
 	bool IsStackActivate() const { return bIsActive; }
 
 	void PushCameraMode(TSubclassOf<UN1CameraMode> CameraModeClass);
+
 	bool EvaluateStack(float DeltaTime, FN1CameraModeView& OutCameraModeView);
-	
+
 	void DrawDebug(UCanvas* Canvas) const;
+
+	// Gets the tag associated with the top layer and the blend weight of it
 	void GetBlendInfo(float& OutWeightOfTopLayer, FGameplayTag& OutTagOfTopLayer) const;
 
+	int GetSize() { return CameraModeStack.Num(); }
+
 protected:
-	UN1CameraMode* GetCameraModeInstance(TSubclassOf<UN1CameraMode>& CameraModeClass);
+
+	UN1CameraMode* GetCameraModeInstance(TSubclassOf<UN1CameraMode> CameraModeClass);
+
 	void UpdateStack(float DeltaTime);
 	void BlendStack(FN1CameraModeView& OutCameraModeView) const;
 
-public:
-
 protected:
+
 	bool bIsActive;
 
 	UPROPERTY()
 	TArray<TObjectPtr<UN1CameraMode>> CameraModeInstances;
+
 	UPROPERTY()
 	TArray<TObjectPtr<UN1CameraMode>> CameraModeStack;
 };

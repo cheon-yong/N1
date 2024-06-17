@@ -3,18 +3,20 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "ShooterCore",
-	"Description": "",
+	"Description": "Gameplay systems for Game1 / Shooter Game",
 	"Category": "Game Features",
-	"CreatedBy": "",
-	"CreatedByURL": "",
+	"CreatedBy": "Epic Games, Inc.",
+	"CreatedByURL": "https://www.epicgames.com",
 	"DocsURL": "",
 	"MarketplaceURL": "",
 	"SupportURL": "",
-	"EnabledByDefault": false,
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
 	"Installed": false,
+	"ExplicitlyLoaded": true,
+	"EnabledByDefault": false,
+	"BuiltInInitialFeatureState": "Registered",
 	"Modules": [
 		{
 			"Name": "ShooterCoreRuntime",
@@ -22,6 +24,38 @@
 			"LoadingPhase": "Default"
 		}
 	],
-	"ExplicitlyLoaded": true,
-	"BuiltInInitialFeatureState": "Registered"
+	"Plugins": [
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "ModularGameplay",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayMessageRouter",
+			"Enabled": true
+		},
+		{
+			"Name": "CommonUI",
+			"Enabled": true
+		},
+		{
+			"Name": "CommonGame",
+			"Enabled": true
+		},
+		{
+			"Name": "GameSubtitles",
+			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "LyraExampleContent",
+			"Enabled": true
+		}
+	]
 }

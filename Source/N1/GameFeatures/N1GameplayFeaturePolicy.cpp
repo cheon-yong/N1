@@ -13,9 +13,15 @@ UN1GameplayFeaturePolicy::UN1GameplayFeaturePolicy(const FObjectInitializer& Obj
 {
 }
 
+UN1GameplayFeaturePolicy& UN1GameplayFeaturePolicy::Get()
+{
+	return UGameFeaturesSubsystem::Get().GetPolicy<UN1GameplayFeaturePolicy>();
+}
+
 void UN1GameplayFeaturePolicy::InitGameFeatureManager()
 {
 	Observers.Add(NewObject<UN1GameFeature_AddGameplayCuePaths>());
+
 	UGameFeaturesSubsystem& Subsystem = UGameFeaturesSubsystem::Get();
 	for (UObject* Observer : Observers)
 	{
@@ -35,6 +41,28 @@ void UN1GameplayFeaturePolicy::ShutdownGameFeatureManager()
 		Subsystem.RemoveObserver(Observer);
 	}
 	Observers.Empty();
+}
+
+TArray<FPrimaryAssetId> UN1GameplayFeaturePolicy::GetPreloadAssetListForGameFeature(const UGameFeatureData* GameFeatureToLoad, bool bIncludeLoadedAssets) const
+{
+	return Super::GetPreloadAssetListForGameFeature(GameFeatureToLoad, bIncludeLoadedAssets);
+}
+
+const TArray<FName> UN1GameplayFeaturePolicy::GetPreloadBundleStateForGameFeature() const
+{
+	return Super::GetPreloadBundleStateForGameFeature();
+}
+
+void UN1GameplayFeaturePolicy::GetGameFeatureLoadingMode(bool& bLoadClientData, bool& bLoadServerData) const
+{
+	// Editor will load both, this can cause hitching as the bundles are set to not preload in editor
+	bLoadClientData = !IsRunningDedicatedServer();
+	bLoadServerData = !IsRunningClientOnly();
+}
+
+bool UN1GameplayFeaturePolicy::IsPluginAllowed(const FString& PluginURL) const
+{
+	return Super::IsPluginAllowed(PluginURL);
 }
 
 void UN1GameFeature_AddGameplayCuePaths::OnGameFeatureRegistering(const UGameFeatureData* GameFeatureData, const FString& PluginName, const FString& PluginURL)

@@ -1,15 +1,19 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
-
-#include "Camera/N1CameraMode.h"
+#include "N1CameraMode.h"
 
 #include "Components/CapsuleComponent.h"
-#include "Camera/N1CameraComponent.h"
-#include "Camera/N1PlayerCameraManager.h"
 #include "Engine/Canvas.h"
 #include "GameFramework/Character.h"
-#include <GameplayTagContainer.h>
+#include "N1CameraComponent.h"
+#include "N1PlayerCameraManager.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(N1CameraMode)
+
+
+//////////////////////////////////////////////////////////////////////////
+// FN1CameraModeView
+//////////////////////////////////////////////////////////////////////////
 FN1CameraModeView::FN1CameraModeView()
 	: Location(ForceInit)
 	, Rotation(ForceInit)
@@ -29,19 +33,114 @@ void FN1CameraModeView::Blend(const FN1CameraModeView& Other, float OtherWeight)
 		*this = Other;
 		return;
 	}
+
 	Location = FMath::Lerp(Location, Other.Location, OtherWeight);
+
 	const FRotator DeltaRotation = (Other.Rotation - Rotation).GetNormalized();
 	Rotation = Rotation + (OtherWeight * DeltaRotation);
+
 	const FRotator DeltaControlRotation = (Other.ControlRotation - ControlRotation).GetNormalized();
 	ControlRotation = ControlRotation + (OtherWeight * DeltaControlRotation);
+
 	FieldOfView = FMath::Lerp(FieldOfView, Other.FieldOfView, OtherWeight);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// UN1CameraMode
+//////////////////////////////////////////////////////////////////////////
+UN1CameraMode::UN1CameraMode()
+{
+	FieldOfView = N1_CAMERA_DEFAULT_FOV;
+	ViewPitchMin = N1_CAMERA_DEFAULT_PITCH_MIN;
+	ViewPitchMax = N1_CAMERA_DEFAULT_PITCH_MAX;
+
+	BlendTime = 0.5f;
+	BlendFunction = EN1CameraModeBlendFunction::EaseOut;
+	BlendExponent = 4.0f;
+	BlendAlpha = 1.0f;
+	BlendWeight = 1.0f;
+}
+
+UN1CameraComponent* UN1CameraMode::GetN1CameraComponent() const
+{
+	return CastChecked<UN1CameraComponent>(GetOuter());
+}
+
+UWorld* UN1CameraMode::GetWorld() const
+{
+	return HasAnyFlags(RF_ClassDefaultObject) ? nullptr : GetOuter()->GetWorld();
+}
+
+AActor* UN1CameraMode::GetTargetActor() const
+{
+	const UN1CameraComponent* N1CameraComponent = GetN1CameraComponent();
+
+	return N1CameraComponent->GetTargetActor();
+}
+
+FVector UN1CameraMode::GetPivotLocation() const
+{
+	const AActor* TargetActor = GetTargetActor();
+	check(TargetActor);
+
+	if (const APawn* TargetPawn = Cast<APawn>(TargetActor))
+	{
+		// Height adjustments for characters to account for crouching.
+		if (const ACharacter* TargetCharacter = Cast<ACharacter>(TargetPawn))
+		{
+			const ACharacter* TargetCharacterCDO = TargetCharacter->GetClass()->GetDefaultObject<ACharacter>();
+			check(TargetCharacterCDO);
+
+			const UCapsuleComponent* CapsuleComp = TargetCharacter->GetCapsuleComponent();
+			check(CapsuleComp);
+
+			const UCapsuleComponent* CapsuleCompCDO = TargetCharacterCDO->GetCapsuleComponent();
+			check(CapsuleCompCDO);
+
+			const float DefaultHalfHeight = CapsuleCompCDO->GetUnscaledCapsuleHalfHeight();
+			const float ActualHalfHeight = CapsuleComp->GetUnscaledCapsuleHalfHeight();
+			const float HeightAdjustment = (DefaultHalfHeight - ActualHalfHeight) + TargetCharacterCDO->BaseEyeHeight;
+
+			return TargetCharacter->GetActorLocation() + (FVector::UpVector * HeightAdjustment);
+		}
+
+		return TargetPawn->GetPawnViewLocation();
+	}
+
+	return TargetActor->GetActorLocation();
+}
+
+FRotator UN1CameraMode::GetPivotRotation() const
+{
+	const AActor* TargetActor = GetTargetActor();
+	check(TargetActor);
+
+	if (const APawn* TargetPawn = Cast<APawn>(TargetActor))
+	{
+		return TargetPawn->GetViewRotation();
+	}
+
+	return TargetActor->GetActorRotation();
 }
 
 void UN1CameraMode::UpdateCameraMode(float DeltaTime)
 {
 	UpdateView(DeltaTime);
-	 
 	UpdateBlending(DeltaTime);
+}
+
+void UN1CameraMode::UpdateView(float DeltaTime)
+{
+	FVector PivotLocation = GetPivotLocation();
+	FRotator PivotRotation = GetPivotRotation();
+
+	PivotRotation.Pitch = FMath::ClampAngle(PivotRotation.Pitch, ViewPitchMin, ViewPitchMax);
+
+	View.Location = PivotLocation;
+	View.Rotation = PivotRotation;
+	View.ControlRotation = View.Rotation;
+	View.FieldOfView = FieldOfView;
 }
 
 void UN1CameraMode::SetBlendWeight(float Weight)
@@ -75,22 +174,12 @@ void UN1CameraMode::SetBlendWeight(float Weight)
 	}
 }
 
-void UN1CameraMode::UpdateView(float DeltaTime)
-{
-	FVector PivotLocation = GetPivotLocation();
-	FRotator PivotRotation = GetPivotRotation();
-	PivotRotation.Pitch = FMath::ClampAngle(PivotRotation.Pitch, ViewPitchMin, ViewPitchMax);
-	View.Location = PivotLocation;
-	View.Rotation = PivotRotation;
-	View.ControlRotation = View.Rotation;
-	View.FieldOfView = FieldOfView;
-}
-
 void UN1CameraMode::UpdateBlending(float DeltaTime)
 {
-	if (BlendTime > 0.f)
+	if (BlendTime > 0.0f)
 	{
 		BlendAlpha += (DeltaTime / BlendTime);
+		BlendAlpha = FMath::Min(BlendAlpha, 1.0f);
 	}
 	else
 	{
@@ -98,20 +187,25 @@ void UN1CameraMode::UpdateBlending(float DeltaTime)
 	}
 
 	const float Exponent = (BlendExponent > 0.0f) ? BlendExponent : 1.0f;
+
 	switch (BlendFunction)
 	{
 	case EN1CameraModeBlendFunction::Linear:
 		BlendWeight = BlendAlpha;
 		break;
+
 	case EN1CameraModeBlendFunction::EaseIn:
 		BlendWeight = FMath::InterpEaseIn(0.0f, 1.0f, BlendAlpha, Exponent);
 		break;
+
 	case EN1CameraModeBlendFunction::EaseOut:
 		BlendWeight = FMath::InterpEaseOut(0.0f, 1.0f, BlendAlpha, Exponent);
 		break;
+
 	case EN1CameraModeBlendFunction::EaseInOut:
 		BlendWeight = FMath::InterpEaseInOut(0.0f, 1.0f, BlendAlpha, Exponent);
 		break;
+
 	default:
 		checkf(false, TEXT("UpdateBlending: Invalid BlendFunction [%d]\n"), (uint8)BlendFunction);
 		break;
@@ -120,64 +214,19 @@ void UN1CameraMode::UpdateBlending(float DeltaTime)
 
 void UN1CameraMode::DrawDebug(UCanvas* Canvas) const
 {
+	check(Canvas);
+
+	FDisplayDebugManager& DisplayDebugManager = Canvas->DisplayDebugManager;
+
+	DisplayDebugManager.SetDrawColor(FColor::White);
+	DisplayDebugManager.DrawString(FString::Printf(TEXT("      N1CameraMode: %s (%f)"), *GetName(), BlendWeight));
 }
 
-FVector UN1CameraMode::GetPivotLocation() const
-{
-	const AActor* TargetActor = GetTargetActor();
-	check(TargetActor);
-	if (const APawn* TargetPawn = Cast<APawn>(TargetActor))
-	{
-		return TargetPawn->GetPawnViewLocation();
-	}
-	return TargetActor->GetActorLocation();
 
-}
-
-FRotator UN1CameraMode::GetPivotRotation() const
-{
-	const AActor* TargetActor = GetTargetActor();
-	check(TargetActor);
-	if (const APawn* TargetPawn = Cast<APawn>(TargetActor))
-	{
-		return TargetPawn->GetViewRotation();
-	}
-	return TargetActor->GetActorRotation();
-}
-
-UN1CameraMode::UN1CameraMode()
-{
-	FieldOfView = N1_CAMERA_DEFAULT_FOV;
-	ViewPitchMin = N1_CAMERA_DEFAULT_PITCH_MIN;
-	ViewPitchMax = N1_CAMERA_DEFAULT_PITCH_MAX;
-	BlendTime = 0.0f;
-	BlendAlpha = 1.0f;
-	BlendWeight = 1.0f;
-
-	BlendFunction = EN1CameraModeBlendFunction::EaseOut;
-	BlendExponent = 4.0f;
-}
-
-UN1CameraComponent* UN1CameraMode::GetN1CameraComponent() const
-{
-	return CastChecked<UN1CameraComponent>(GetOuter());
-}
-
-UWorld* UN1CameraMode::GetWorld() const
-{
-	return HasAnyFlags(RF_ClassDefaultObject) ? nullptr : GetOuter()->GetWorld();
-}
-
-AActor* UN1CameraMode::GetTargetActor() const
-{
-	const UN1CameraComponent* N1CameraComponent = GetN1CameraComponent();
-	return N1CameraComponent->GetTargetActor();
-}
-
-////////////////////////////////////////////////////////////////////
-// CameraModeStack
-UN1CameraModeStack::UN1CameraModeStack(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+//////////////////////////////////////////////////////////////////////////
+// UN1CameraModeStack
+//////////////////////////////////////////////////////////////////////////
+UN1CameraModeStack::UN1CameraModeStack()
 {
 	bIsActive = true;
 }
@@ -210,22 +259,6 @@ void UN1CameraModeStack::DeactivateStack()
 			CameraMode->OnDeactivation();
 		}
 	}
-}
-
-UN1CameraMode* UN1CameraModeStack::GetCameraModeInstance(TSubclassOf<UN1CameraMode>& CameraModeClass)
-{
-	check(CameraModeClass);
-	for (UN1CameraMode* CameraMode : CameraModeInstances)
-	{
-		if ((CameraMode != nullptr) && (CameraMode->GetClass() == CameraModeClass))
-		{
-			return CameraMode;
-		}
-	}
-	UN1CameraMode* NewCameraMode = NewObject<UN1CameraMode>(GetOuter(), CameraModeClass, NAME_None, RF_NoFlags);
-	check(NewCameraMode);
-	CameraModeInstances.Add(NewCameraMode);
-	return NewCameraMode;
 }
 
 void UN1CameraModeStack::PushCameraMode(TSubclassOf<UN1CameraMode> CameraModeClass)
@@ -307,40 +340,26 @@ bool UN1CameraModeStack::EvaluateStack(float DeltaTime, FN1CameraModeView& OutCa
 	return true;
 }
 
-void UN1CameraModeStack::DrawDebug(UCanvas* Canvas) const
+UN1CameraMode* UN1CameraModeStack::GetCameraModeInstance(TSubclassOf<UN1CameraMode> CameraModeClass)
 {
-	check(Canvas);
+	check(CameraModeClass);
 
-	FDisplayDebugManager& DisplayDebugManager = Canvas->DisplayDebugManager;
-
-	DisplayDebugManager.SetDrawColor(FColor::Green);
-	DisplayDebugManager.DrawString(FString(TEXT("   --- Camera Modes (Begin) ---")));
-
-	for (const UN1CameraMode* CameraMode : CameraModeStack)
+	// First see if we already created one.
+	for (UN1CameraMode* CameraMode : CameraModeInstances)
 	{
-		check(CameraMode);
-		CameraMode->DrawDebug(Canvas);
+		if ((CameraMode != nullptr) && (CameraMode->GetClass() == CameraModeClass))
+		{
+			return CameraMode;
+		}
 	}
 
-	DisplayDebugManager.SetDrawColor(FColor::Green);
-	DisplayDebugManager.DrawString(FString::Printf(TEXT("   --- Camera Modes (End) ---")));
-}
+	// Not found, so we need to create it.
+	UN1CameraMode* NewCameraMode = NewObject<UN1CameraMode>(GetOuter(), CameraModeClass, NAME_None, RF_NoFlags);
+	check(NewCameraMode);
 
-void UN1CameraModeStack::GetBlendInfo(float& OutWeightOfTopLayer, FGameplayTag& OutTagOfTopLayer) const
-{
-	if (CameraModeStack.Num() == 0)
-	{
-		OutWeightOfTopLayer = 1.0f;
-		OutTagOfTopLayer = FGameplayTag();
-		return;
-	}
-	else
-	{
-		UN1CameraMode* TopEntry = CameraModeStack.Last();
-		check(TopEntry);
-		OutWeightOfTopLayer = TopEntry->GetBlendWeight();
-		OutTagOfTopLayer = TopEntry->GetCameraTypeTag();
-	}
+	CameraModeInstances.Add(NewCameraMode);
+
+	return NewCameraMode;
 }
 
 void UN1CameraModeStack::UpdateStack(float DeltaTime)
@@ -392,13 +411,55 @@ void UN1CameraModeStack::BlendStack(FN1CameraModeView& OutCameraModeView) const
 	{
 		return;
 	}
+
+	// Start at the bottom and blend up the stack
 	const UN1CameraMode* CameraMode = CameraModeStack[StackSize - 1];
 	check(CameraMode);
+
 	OutCameraModeView = CameraMode->GetCameraModeView();
+
 	for (int32 StackIndex = (StackSize - 2); StackIndex >= 0; --StackIndex)
 	{
 		CameraMode = CameraModeStack[StackIndex];
 		check(CameraMode);
+
 		OutCameraModeView.Blend(CameraMode->GetCameraModeView(), CameraMode->GetBlendWeight());
 	}
 }
+
+void UN1CameraModeStack::DrawDebug(UCanvas* Canvas) const
+{
+	check(Canvas);
+
+	FDisplayDebugManager& DisplayDebugManager = Canvas->DisplayDebugManager;
+
+	DisplayDebugManager.SetDrawColor(FColor::Green);
+	DisplayDebugManager.DrawString(FString(TEXT("   --- Camera Modes (Begin) ---")));
+
+	for (const UN1CameraMode* CameraMode : CameraModeStack)
+	{
+		check(CameraMode);
+		CameraMode->DrawDebug(Canvas);
+	}
+
+	DisplayDebugManager.SetDrawColor(FColor::Green);
+	DisplayDebugManager.DrawString(FString::Printf(TEXT("   --- Camera Modes (End) ---")));
+}
+
+void UN1CameraModeStack::GetBlendInfo(float& OutWeightOfTopLayer, FGameplayTag& OutTagOfTopLayer) const
+{
+	if (CameraModeStack.Num() == 0)
+	{
+		OutWeightOfTopLayer = 1.0f;
+		OutTagOfTopLayer = FGameplayTag();
+		return;
+	}
+	else
+	{
+		UN1CameraMode* TopEntry = CameraModeStack.Last();
+		check(TopEntry);
+		OutWeightOfTopLayer = TopEntry->GetBlendWeight();
+		OutTagOfTopLayer = TopEntry->GetCameraTypeTag();
+	}
+}
+

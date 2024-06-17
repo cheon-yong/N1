@@ -33,8 +33,8 @@ struct FInputMappingContextAndPriority
 /**
  * 
  */
-UCLASS(meta = (DisplayName = "Add Input Mapping"))
-class N1_API UGameFeatureAction_AddContext : public UGameFeatureAction_WorldAction
+UCLASS(MinimalAPI, meta = (DisplayName = "Add Input Mapping"))
+class UGameFeatureAction_AddContext final : public UGameFeatureAction_WorldAction
 {
 	GENERATED_BODY()
 	

@@ -21,11 +21,17 @@ class N1_API UN1EnhancedInputComponent : public UEnhancedInputComponent
 	
 public:
 	UN1EnhancedInputComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	template <class UserClass, typename FuncType>
-	void BindNativeAction(const UN1InputConfig* InputConfig, const FGameplayTag& InputTag, ETriggerEvent TriggerEvent, UserClass* Object, FuncType Func, bool bLogIfNotFound);
-	template <class UserClass, typename PressedFuncType, typename ReleasedFuncType>
-	void BindAbilityActions(const UN1InputConfig* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, TArray<uint32>& BindHandles);
+
 	void AddInputMappings(const UN1InputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;
+	void RemoveInputMappings(const UN1InputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;
+
+	template<class UserClass, typename FuncType>
+	void BindNativeAction(const UN1InputConfig* InputConfig, const FGameplayTag& InputTag, ETriggerEvent TriggerEvent, UserClass* Object, FuncType Func, bool bLogIfNotFound);
+
+	template<class UserClass, typename PressedFuncType, typename ReleasedFuncType>
+	void BindAbilityActions(const UN1InputConfig* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, TArray<uint32>& BindHandles);
+
+	void RemoveBinds(TArray<uint32>& BindHandles);
 };
 
 template <class UserClass, typename FuncType>

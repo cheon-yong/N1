@@ -10,16 +10,26 @@
 /**
  * 
  */
-UCLASS()
-class N1_API UN1GameplayFeaturePolicy : public UDefaultGameFeaturesProjectPolicies
+UCLASS(MinimalAPI, Config = Game)
+class UN1GameplayFeaturePolicy : public UDefaultGameFeaturesProjectPolicies
 {
 	GENERATED_BODY()
 	
 public:
-	UN1GameplayFeaturePolicy(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	N1_API static UN1GameplayFeaturePolicy& Get();
 
+	UN1GameplayFeaturePolicy(const FObjectInitializer& ObjectInitializer);
+
+	//~UGameFeaturesProjectPolicies interface
 	virtual void InitGameFeatureManager() override;
 	virtual void ShutdownGameFeatureManager() override;
+	virtual TArray<FPrimaryAssetId> GetPreloadAssetListForGameFeature(const UGameFeatureData* GameFeatureToLoad, bool bIncludeLoadedAssets = false) const override;
+	virtual bool IsPluginAllowed(const FString& PluginURL) const override;
+	virtual const TArray<FName> GetPreloadBundleStateForGameFeature() const override;
+	virtual void GetGameFeatureLoadingMode(bool& bLoadClientData, bool& bLoadServerData) const override;
+	//~End of UGameFeaturesProjectPolicies interface
+
+private:
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UObject>> Observers;
 };

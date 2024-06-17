@@ -21,8 +21,19 @@ class N1_API UGameFeatureAction_WorldAction : public UGameFeatureAction
 {
 	GENERATED_BODY()
 	
-public:
+
+	public:
+	//~ Begin UGameFeatureAction interface
 	virtual void OnGameFeatureActivating(FGameFeatureActivatingContext& Context) override;
-	virtual void AddToWorld(const FWorldContext& WorldContext, const FGameFeatureStateChangeContext&
-		ChangeContext) PURE_VIRTUAL(UGameFeatureAction_WorldActionBase::AddToWorld, );
+	virtual void OnGameFeatureDeactivating(FGameFeatureDeactivatingContext& Context) override;
+	//~ End UGameFeatureAction interface
+
+private:
+	void HandleGameInstanceStart(UGameInstance* GameInstance, FGameFeatureStateChangeContext ChangeContext);
+
+	/** Override with the action-specific logic */
+	virtual void AddToWorld(const FWorldContext& WorldContext, const FGameFeatureStateChangeContext& ChangeContext) PURE_VIRTUAL(UGameFeatureAction_WorldActionBase::AddToWorld, );
+
+private:
+	TMap<FGameFeatureStateChangeContext, FDelegateHandle> GameInstanceStartHandles;
 };
