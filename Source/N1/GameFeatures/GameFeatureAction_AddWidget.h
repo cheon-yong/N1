@@ -1,76 +1,103 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "UIExtensionSystem.h"
 #include "CommonActivatableWidget.h"
-#include "GameplayTagContainer.h"
 #include "GameFeatureAction_WorldAction.h"
+#include "UIExtensionSystem.h"
+
 #include "GameFeatureAction_AddWidget.generated.h"
 
+struct FWorldContext;
 struct FComponentRequestHandle;
-struct FUIExtensionHandle;
 
 USTRUCT()
 struct FN1HUDLayoutRequest
 {
 	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, Category = UI, meta=(AssetBundles="Client"))
+
+	// The layout widget to spawn
+	UPROPERTY(EditAnywhere, Category = UI, meta = (AssetBundles = "Client"))
 	TSoftClassPtr<UCommonActivatableWidget> LayoutClass;
 
-	UPROPERTY(EditAnywhere, Category = UI, meta=(Categories="UI"))
+	// The layer to insert the widget in
+	UPROPERTY(EditAnywhere, Category = UI, meta = (Categories = "UI.Layer"))
 	FGameplayTag LayerID;
 };
+
 
 USTRUCT()
 struct FN1HUDElementEntry
 {
 	GENERATED_BODY()
-	
+
+	// The widget to spawn
 	UPROPERTY(EditAnywhere, Category = UI, meta = (AssetBundles = "Client"))
 	TSoftClassPtr<UUserWidget> WidgetClass;
 
-	UPROPERTY(EditAnywhere, Category = UI, meta = (Categories = "UI"))
+	// The slot ID where we should place this widget
+	UPROPERTY(EditAnywhere, Category = UI)
 	FGameplayTag SlotID;
 };
 
+//////////////////////////////////////////////////////////////////////
+// UGameFeatureAction_AddWidget
+
 /**
- * 
+ * GameFeatureAction responsible for granting abilities (and attributes) to actors of a specified type.
  */
-UCLASS(meta = (DisplayName = "Add Widgets"))
-class N1_API UGameFeatureAction_AddWidget : public UGameFeatureAction_WorldAction
+UCLASS(MinimalAPI, meta = (DisplayName = "Add Widgets"))
+class UGameFeatureAction_AddWidgets final : public UGameFeatureAction_WorldAction
 {
 	GENERATED_BODY()
-	
-public:
-	struct FPerContextData
-	{
-		TArray<TSharedPtr<FComponentRequestHandle>> ComponentRequests;
-		TArray<TWeakObjectPtr<UCommonActivatableWidget>> LayoutsAdded;
 
+	public:
+	//~ Begin UGameFeatureAction interface
+	virtual void OnGameFeatureDeactivating(FGameFeatureDeactivatingContext& Context) override;
+#if WITH_EDITORONLY_DATA
+	virtual void AddAdditionalAssetBundleData(FAssetBundleData& AssetBundleData) override;
+#endif
+	//~ End UGameFeatureAction interface
+
+	//~ Begin UObject interface
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+#endif
+	//~ End UObject interface
+
+private:
+	// Layout to add to the HUD
+	UPROPERTY(EditAnywhere, Category = UI, meta = (TitleProperty = "{LayerID} -> {LayoutClass}"))
+	TArray<FN1HUDLayoutRequest> Layout;
+
+	// Widgets to add to the HUD
+	UPROPERTY(EditAnywhere, Category = UI, meta = (TitleProperty = "{SlotID} -> {WidgetClass}"))
+	TArray<FN1HUDElementEntry> Widgets;
+
+private:
+
+	struct FPerActorData
+	{
+		TArray<TWeakObjectPtr<UCommonActivatableWidget>> LayoutsAdded;
 		TArray<FUIExtensionHandle> ExtensionHandles;
 	};
 
-public:
-	void Reset(FPerContextData& ActiveData);
+	struct FPerContextData
+	{
+		TArray<TSharedPtr<FComponentRequestHandle>> ComponentRequests;
+		TMap<FObjectKey, FPerActorData> ActorData;
+	};
 
-	virtual void OnGameFeatureDeactivating(FGameFeatureDeactivatingContext& Context) override;
+	TMap<FGameFeatureStateChangeContext, FPerContextData> ContextData;
 
+	//~ Begin UGameFeatureAction_WorldActionBase interface
 	virtual void AddToWorld(const FWorldContext& WorldContext, const FGameFeatureStateChangeContext& ChangeContext) override;
+	//~ End UGameFeatureAction_WorldActionBase interface
 
-	void AddWidgets(AActor* Actor, FPerContextData& ActiveData);
-
-	void RemoveWidgets(AActor* Actor, FPerContextData& ActiveData);
+	void Reset(FPerContextData& ActiveData);
 
 	void HandleActorExtension(AActor* Actor, FName EventName, FGameFeatureStateChangeContext ChangeContext);
 
-public:
-	TMap<FGameFeatureStateChangeContext, FPerContextData> ContextData;
-	UPROPERTY(EditAnywhere, Category = UI)
-	TArray<FN1HUDLayoutRequest> Layout;
-
-	UPROPERTY(EditAnywhere, Category = UI)
-	TArray<FN1HUDElementEntry> Widgets;
+	void AddWidgets(AActor* Actor, FPerContextData& ActiveData);
+	void RemoveWidgets(AActor* Actor, FPerContextData& ActiveData);
 };

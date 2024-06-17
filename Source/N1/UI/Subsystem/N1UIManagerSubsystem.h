@@ -9,7 +9,7 @@
  * 
  */
 UCLASS()
-class N1_API UN1UIManagerSubsystem : public UGameUIManagerSubsystem
+class UN1UIManagerSubsystem : public UGameUIManagerSubsystem
 {
 	GENERATED_BODY()
 	

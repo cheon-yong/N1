@@ -16,15 +16,20 @@ class N1_API UN1WeaponUserInterface : public UCommonUserWidget
 {
 	GENERATED_BODY()
 	
-public:
+	public:
 	UN1WeaponUserInterface(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWeaponChanged(UN1WeaponInstance* OldWeapon, UN1WeaponInstance* NewWeapon);
 
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+private:
+	void RebuildWidgetFromWeapon();
 
-public:
+private:
 	UPROPERTY(Transient)
 	TObjectPtr<UN1WeaponInstance> CurrentInstance;
 };

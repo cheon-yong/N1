@@ -7,6 +7,7 @@
 AN1HUD::AN1HUD(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
 void AN1HUD::PreInitializeComponents()

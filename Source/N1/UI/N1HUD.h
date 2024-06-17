@@ -3,13 +3,14 @@
 #pragma once
 
 #include "GameFramework/HUD.h"
+
 #include "N1HUD.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class N1_API AN1HUD : public AHUD
+UCLASS(Config = Game)
+class AN1HUD : public AHUD
 {
 	GENERATED_BODY()
 	

@@ -1,13 +1,28 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "N1WeaponUserInterface.h"
 
-#include "UI/Weapons/N1WeaponUserInterface.h"
 #include "Equipment/N1EquipmentManagerComponent.h"
+#include "GameFramework/Pawn.h"
 #include "Weapons/N1WeaponInstance.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(N1WeaponUserInterface)
+
+struct FGeometry;
 
 UN1WeaponUserInterface::UN1WeaponUserInterface(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+}
+
+void UN1WeaponUserInterface::NativeConstruct()
+{
+	Super::NativeConstruct();
+}
+
+void UN1WeaponUserInterface::NativeDestruct()
+{
+	Super::NativeDestruct();
 }
 
 void UN1WeaponUserInterface::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -24,9 +39,15 @@ void UN1WeaponUserInterface::NativeTick(const FGeometry& MyGeometry, float InDel
 				{
 					UN1WeaponInstance* OldWeapon = CurrentInstance;
 					CurrentInstance = NewInstance;
+					RebuildWidgetFromWeapon();
 					OnWeaponChanged(OldWeapon, CurrentInstance);
 				}
 			}
 		}
 	}
+}
+
+void UN1WeaponUserInterface::RebuildWidgetFromWeapon()
+{
+
 }
