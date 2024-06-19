@@ -63,7 +63,7 @@ enum class EDeadzoneStick : uint8
 };
 
 /**
- * This is a deadzone input modifier that will have it's thresholds driven by what is in the Lyra Shared game settings.
+ * This is a deadzone input modifier that will have it's thresholds driven by what is in the N1 Shared game settings.
  */
 UCLASS(NotBlueprintable, MinimalAPI, meta = (DisplayName = "N1 Settings Driven Dead Zone"))
 class UN1InputModifierDeadZone : public UInputModifier
@@ -102,7 +102,7 @@ enum class EN1TargetingType : uint8
 	ADS = 1,
 };
 
-/** Applies a scalar modifier based on the current gamepad settings in Lyra Shared game settings.  */
+/** Applies a scalar modifier based on the current gamepad settings in N1 Shared game settings.  */
 UCLASS(NotBlueprintable, MinimalAPI, meta = (DisplayName = "N1 Gamepad Sensitivity"))
 class UN1InputModifierGamepadSensitivity : public UInputModifier
 {
@@ -121,7 +121,7 @@ protected:
 	virtual FInputActionValue ModifyRaw_Implementation(const UEnhancedPlayerInput* PlayerInput, FInputActionValue CurrentValue, float DeltaTime) override;
 };
 
-/** Applies an inversion of axis values based on a setting in the Lyra Shared game settings */
+/** Applies an inversion of axis values based on a setting in the N1 Shared game settings */
 UCLASS(NotBlueprintable, MinimalAPI, meta = (DisplayName = "N1 Aim Inversion Setting"))
 class UN1InputModifierAimInversion : public UInputModifier
 {
