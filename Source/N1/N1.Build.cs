@@ -44,6 +44,7 @@ public class N1 : ModuleRules
 			"PhysicsCore",
 			"CommonLoadingScreen",
 			"AudioMixer",
+			"AsyncMixin",
 			"AudioModulation",
 			"GameSubtitles",
 			"PropertyPath"

@@ -368,6 +368,8 @@
 /I "E:\unreal-workspace\N1\Plugins\CommonLoadingScreen\Intermediate\Build\Win64\UnrealEditor\Inc\CommonLoadingScreen\UHT"
 /I "E:\unreal-workspace\N1\Plugins\CommonLoadingScreen\Source"
 /I "E:\unreal-workspace\N1\Plugins\CommonLoadingScreen\Source\CommonLoadingScreen\Public"
+/I "E:\unreal-workspace\N1\Plugins\AsyncMixin\Source"
+/I "E:\unreal-workspace\N1\Plugins\AsyncMixin\Source\Public"
 /I "E:\unreal-workspace\N1\Plugins\GameSubtitles\Intermediate\Build\Win64\UnrealEditor\Inc\GameSubtitles\UHT"
 /I "E:\unreal-workspace\N1\Plugins\GameSubtitles\Source"
 /I "E:\unreal-workspace\N1\Plugins\GameSubtitles\Source\Public"

@@ -18,7 +18,7 @@ struct FInputMappingContextAndPriority
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "Input", meta = (AssetBundles = "Client,Server"))
+	UPROPERTY(EditAnywhere, Category = "Input", meta = (AssetBundles="Client,Server"))
 	TSoftObjectPtr<UInputMappingContext> InputMapping;
 
 	// Higher priority input mappings will be prioritized over mappings with a lower priority.

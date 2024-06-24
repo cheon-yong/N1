@@ -76,6 +76,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "AsyncMixin",
+			"Enabled": true
+		},
+		{
 			"Name": "Niagara",
 			"Enabled": true
 		},
