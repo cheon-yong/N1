@@ -26,5 +26,6 @@ void UN1GameInstance::Init()
 
 void UN1GameInstance::Shutdown()
 {
+
 	Super::Shutdown();
 }
