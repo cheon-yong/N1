@@ -1,0 +1,10 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.ShooterCoreRuntime.cpp.obj": [
+			"ShooterCoreRuntimeModule.cpp.obj",
+			"TDM_PlayerSpawningManagmentComponent.cpp.obj",
+			"ShooterCoreRuntime.init.gen.cpp.obj"
+		]
+	}
+}
