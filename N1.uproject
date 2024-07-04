@@ -90,6 +90,10 @@
 		{
 			"Name": "AudioModulation",
 			"Enabled": true
+		},
+		{
+			"Name": "Spatialization",
+			"Enabled": true
 		}
 	]
 }
