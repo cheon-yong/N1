@@ -18,6 +18,7 @@ class UN1PawnExtensionComponent;
 class UN1CameraComponent;
 class UN1AbilitySystemComponent;
 class UN1HealthComponent;
+class UBoxComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -86,5 +87,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "N1|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UN1HealthComponent> HealthComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "N1|Character")
+	TObjectPtr<UBoxComponent> VicinityCollision;
 };
 

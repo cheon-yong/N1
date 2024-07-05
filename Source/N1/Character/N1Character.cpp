@@ -6,6 +6,7 @@
 #include "Character/N1CharacterMovementComponent.h"
 #include "Character/N1HealthComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
@@ -63,6 +64,11 @@ AN1Character::AN1Character(const FObjectInitializer& ObjectInitializer)
 	HealthComponent = CreateDefaultSubobject<UN1HealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
 	HealthComponent->OnDeathFinished.AddDynamic(this, &ThisClass::OnDeathFinished);
+
+	// Vicinity Collision
+	VicinityCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("VicinityCollision"));
+	VicinityCollision->SetupAttachment(GetRootComponent());
+	VicinityCollision->SetBoxExtent(FVector(100.f, 100.f, 100.f));
 
 	// Character Movement Component
 	UN1CharacterMovementComponent* N1MoveComp = CastChecked<UN1CharacterMovementComponent>(GetCharacterMovement());
