@@ -37,6 +37,8 @@
 /FUNCTIONPADMIN:6
 "E:\unreal-workspace\N1\Intermediate\Build\Win64\x64\N1Editor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.obj"
 "E:\unreal-workspace\N1\Plugins\GameFeatures\ShooterCore\Intermediate\Build\Win64\x64\UnrealEditor\Development\ShooterCoreRuntime\Module.ShooterCoreRuntime.cpp.obj"
+"E:\unreal-workspace\N1\Plugins\GameFeatures\ShooterCore\Intermediate\Build\Win64\x64\UnrealEditor\Development\ShooterCoreRuntime\N1WorldCollectable.cpp.obj"
+"E:\unreal-workspace\N1\Plugins\GameFeatures\ShooterCore\Intermediate\Build\Win64\x64\UnrealEditor\Development\ShooterCoreRuntime\ShooterCoreRuntime.init.gen.cpp.obj"
 "E:\unreal-workspace\N1\Plugins\GameFeatures\ShooterCore\Intermediate\Build\Win64\x64\UnrealEditor\Development\ShooterCoreRuntime\Default.rc2.res"
 "..\Intermediate\Build\Win64\x64\UnrealEditor\Development\CoreUObject\UnrealEditor-CoreUObject.lib"
 "..\Intermediate\Build\Win64\x64\UnrealEditor\Development\Engine\UnrealEditor-Engine.lib"

@@ -31,8 +31,7 @@ class N1_API UN1HeroComponent : public UPawnComponent, public IGameFrameworkInit
 {
 	GENERATED_BODY()
 
-	public:
-
+public:
 	UN1HeroComponent(const FObjectInitializer& ObjectInitializer);
 
 	/** Returns the hero component if one exists on the specified actor. */

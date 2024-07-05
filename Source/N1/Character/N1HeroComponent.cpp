@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "N1HeroComponent.h"
+
 #include "Components/GameFrameworkComponentDelegates.h"
 #include "Logging/MessageLog.h"
 #include "Input/N1MappableConfigPair.h"
