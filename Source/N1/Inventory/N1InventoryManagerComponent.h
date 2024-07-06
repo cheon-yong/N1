@@ -10,6 +10,7 @@
 class UN1InventoryItemDefinition;
 class UN1InventoryItemInstance;
 class UN1InventoryManagerComponent;
+class UN1VicinityComponent;
 class UObject;
 struct FFrame;
 struct FN1InventoryList;
@@ -50,6 +51,7 @@ struct FN1InventoryEntry : public FFastArraySerializerItem
 private:
 	friend FN1InventoryList;
 	friend UN1InventoryManagerComponent;
+	friend UN1VicinityComponent;
 
 	UPROPERTY()
 	TObjectPtr<UN1InventoryItemInstance> Instance = nullptr;
@@ -101,6 +103,7 @@ private:
 
 private:
 	friend UN1InventoryManagerComponent;
+	friend UN1VicinityComponent;
 
 private:
 	// Replicated list of items

@@ -14,6 +14,7 @@ class UN1InventoryItemFragment;
 struct FFrame;
 struct FGameplayTag;
 
+
 /**
  * UN1InventoryItemInstance
  */
@@ -68,6 +69,7 @@ private:
 	void SetItemDef(TSubclassOf<UN1InventoryItemDefinition> InDef);
 
 	friend struct FN1InventoryList;
+	friend struct FN1VicinityList;
 
 private:
 	UPROPERTY(Replicated)

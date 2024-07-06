@@ -30,6 +30,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Pickup|Mesh")
 	TObjectPtr<UStaticMesh> DisplayMesh;
 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Pickup")
+	int32 PickupStack = 1;
+
 	//Cool down time between pickups in seconds
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "N1|Pickup")
 	int32 SpawnCoolDownSeconds;
