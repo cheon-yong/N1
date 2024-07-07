@@ -35,6 +35,15 @@ struct FN1VicinityChangeMessage
 	int32 Delta = 0;
 };
 
+USTRUCT(BlueprintType)
+struct FN1VicinityListChangeMessage
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadWrite)	
+	TMap<FString, UN1InventoryItemInstance*> Instances;
+};
+
 
 USTRUCT(BlueprintType)
 struct FN1VicinityEntry : public FFastArraySerializerItem
@@ -162,6 +171,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Inventory, BlueprintPure)
 	UN1InventoryItemInstance* FindFirstItemStackByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef) const;
 
+	UFUNCTION(BlueprintCallable)
+	void BroadcastChangeMessage(UN1InventoryItemInstance* ItemInstance, int32 OldCount, int32 NewCount);
+
 	int32 GetTotalItemCountByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef) const;
 	bool ConsumeItemsByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef, int32 NumToConsume);
 	// ~ End TODO : make interface
@@ -181,6 +193,6 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 protected:
-	UPROPERTY(Replicated)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	FN1VicinityList VicinityList;
 };

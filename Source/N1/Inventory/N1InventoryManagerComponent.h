@@ -24,18 +24,21 @@ struct FN1InventoryChangeMessage
 	GENERATED_BODY()
 
 	//@TODO: Tag based names+owning actors for inventories instead of directly exposing the component?
-	UPROPERTY(BlueprintReadOnly, Category = Inventory)
+	UPROPERTY(BlueprintReadWrite, Category = Inventory)
 	TObjectPtr<UActorComponent> InventoryOwner = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, Category = Inventory)
+	UPROPERTY(BlueprintReadWrite, Category = Inventory)
 	TObjectPtr<UN1InventoryItemInstance> Instance = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, Category = Inventory)
+	UPROPERTY(BlueprintReadWrite, Category = Inventory)
 	int32 NewCount = 0;
 
-	UPROPERTY(BlueprintReadOnly, Category = Inventory)
+	UPROPERTY(BlueprintReadWrite, Category = Inventory)
 	int32 Delta = 0;
 };
+
+
+
 
 /** A single entry in an inventory */
 USTRUCT(BlueprintType)

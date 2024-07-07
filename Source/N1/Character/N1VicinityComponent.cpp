@@ -243,7 +243,6 @@ void UN1VicinityComponent::HandleChangeInitState(UGameFrameworkComponentManager*
 		}
 
 		// TODO : Intialize something
-		
 		if (AN1Character* N1Character = Cast<AN1Character>(Pawn))
 		{
 			N1Character->VicinityCollision->OnComponentBeginOverlap.AddDynamic(this, &UN1VicinityComponent::OnOverlapBegin);
@@ -334,6 +333,16 @@ UN1InventoryItemInstance* UN1VicinityComponent::FindFirstItemStackByDefinition(T
 	return nullptr;
 }
 
+void UN1VicinityComponent::BroadcastChangeMessage(UN1InventoryItemInstance* ItemInstance, int32 OldCount, int32 NewCount)
+{
+	FN1VicinityEntry Entry;
+	Entry.Instance = ItemInstance;
+
+	VicinityList.BroadcastChangeMessage(Entry, OldCount, NewCount);
+}
+
+
+
 int32 UN1VicinityComponent::GetTotalItemCountByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef) const
 {
 	int32 TotalCount = 0;
@@ -384,7 +393,7 @@ void UN1VicinityComponent::OnChangedList()
 {
 	for (FN1VicinityEntry& Entry : VicinityList.Entries)
 	{
-		VicinityList.BroadcastChangeMessage(Entry, Entry.StackCount, Entry.StackCount);
+		VicinityList.BroadcastChangeMessage(Entry, Entry.LastObservedCount, Entry.StackCount);
 	}
 }
 
