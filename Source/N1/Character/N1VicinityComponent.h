@@ -22,26 +22,17 @@ struct FN1VicinityChangeMessage
 	GENERATED_BODY()
 
 	//@TODO: Tag based names+owning actors for inventories instead of directly exposing the component?
-	UPROPERTY(BlueprintReadOnly, Category = Vicinity)
+	UPROPERTY(BlueprintReadWrite, Category = Vicinity)
 	TObjectPtr<UActorComponent> InventoryOwner = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, Category = Vicinity)
+	UPROPERTY(BlueprintReadWrite, Category = Vicinity)
 	TObjectPtr<UN1InventoryItemInstance> Instance = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, Category = Vicinity)
+	UPROPERTY(BlueprintReadWrite, Category = Vicinity)
 	int32 NewCount = 0;
 
-	UPROPERTY(BlueprintReadOnly, Category = Vicinity)
+	UPROPERTY(BlueprintReadWrite, Category = Vicinity)
 	int32 Delta = 0;
-};
-
-USTRUCT(BlueprintType)
-struct FN1VicinityListChangeMessage
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(BlueprintReadWrite)	
-	TMap<FString, UN1InventoryItemInstance*> Instances;
 };
 
 
@@ -62,9 +53,6 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UN1InventoryItemInstance> Instance = nullptr;
-
-	UPROPERTY()
-	int32 StackCount = 0;
 
 	UPROPERTY(NotReplicated)
 	int32 LastObservedCount = INDEX_NONE;

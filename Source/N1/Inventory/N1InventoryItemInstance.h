@@ -38,6 +38,18 @@ class UN1InventoryItemInstance : public UObject
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = Inventory)
 	void RemoveStatTagStack(FGameplayTag Tag, int32 StackCount);
 
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = Inventory)
+	void SetStackCounter(int32 StackCount);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = Inventory)
+	int32 GetStackCounter();
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = Inventory)
+	void AddStackCounter(int32 AddCounter);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = Inventory)
+	void ReduceStackCounter(int32 ReduceCounter);
+
 	// Returns the stack count of the specified tag (or 0 if the tag is not present)
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	int32 GetStatTagStackCount(FGameplayTag Tag) const;
@@ -46,6 +58,7 @@ class UN1InventoryItemInstance : public UObject
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool HasStatTag(FGameplayTag Tag) const;
 
+	UFUNCTION(BlueprintCallable, Category = Inventory)
 	TSubclassOf<UN1InventoryItemDefinition> GetItemDef() const
 	{
 		return ItemDef;
@@ -72,6 +85,9 @@ private:
 	friend struct FN1VicinityList;
 
 private:
+	UPROPERTY(Replicated)
+	int32 StackCounter = 1;
+
 	UPROPERTY(Replicated)
 	FGameplayTagStackContainer StatTags;
 

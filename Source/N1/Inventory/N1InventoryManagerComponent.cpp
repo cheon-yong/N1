@@ -28,7 +28,7 @@ FString FN1InventoryEntry::GetDebugString() const
 		ItemDef = Instance->GetItemDef();
 	}
 
-	return FString::Printf(TEXT("%s (%d x %s)"), *GetNameSafe(Instance), StackCount, *GetNameSafe(ItemDef));
+	return FString::Printf(TEXT("%s (%d x %s)"), *GetNameSafe(Instance), Instance->GetStackCounter(), *GetNameSafe(ItemDef));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -39,7 +39,8 @@ void FN1InventoryList::PreReplicatedRemove(const TArrayView<int32> RemovedIndice
 	for (int32 Index : RemovedIndices)
 	{
 		FN1InventoryEntry& Stack = Entries[Index];
-		BroadcastChangeMessage(Stack, /*OldCount=*/ Stack.StackCount, /*NewCount=*/ 0);
+		int32 StackCount = Stack.Instance->GetStackCounter();
+		BroadcastChangeMessage(Stack, /*OldCount=*/ StackCount, /*NewCount=*/ 0);
 		Stack.LastObservedCount = 0;
 	}
 }
@@ -49,8 +50,9 @@ void FN1InventoryList::PostReplicatedAdd(const TArrayView<int32> AddedIndices, i
 	for (int32 Index : AddedIndices)
 	{
 		FN1InventoryEntry& Stack = Entries[Index];
-		BroadcastChangeMessage(Stack, /*OldCount=*/ 0, /*NewCount=*/ Stack.StackCount);
-		Stack.LastObservedCount = Stack.StackCount;
+		int32 StackCount = Stack.Instance->GetStackCounter();
+		BroadcastChangeMessage(Stack, /*OldCount=*/ 0, /*NewCount=*/ StackCount);
+		Stack.LastObservedCount = StackCount;
 	}
 }
 
@@ -60,8 +62,9 @@ void FN1InventoryList::PostReplicatedChange(const TArrayView<int32> ChangedIndic
 	{
 		FN1InventoryEntry& Stack = Entries[Index];
 		check(Stack.LastObservedCount != INDEX_NONE);
-		BroadcastChangeMessage(Stack, /*OldCount=*/ Stack.LastObservedCount, /*NewCount=*/ Stack.StackCount);
-		Stack.LastObservedCount = Stack.StackCount;
+		int32 StackCount = Stack.Instance->GetStackCounter();
+		BroadcastChangeMessage(Stack, /*OldCount=*/ Stack.LastObservedCount, /*NewCount=*/ StackCount);
+		Stack.LastObservedCount = StackCount;
 	}
 }
 
@@ -98,7 +101,7 @@ UN1InventoryItemInstance* FN1InventoryList::AddEntry(TSubclassOf<UN1InventoryIte
 			Fragment->OnInstanceCreated(NewEntry.Instance);
 		}
 	}
-	NewEntry.StackCount = StackCount;
+	NewEntry.Instance->SetStackCounter(StackCount);
 	Result = NewEntry.Instance;
 
 	//const UN1InventoryItemDefinition* ItemCDO = GetDefault<UN1InventoryItemDefinition>(ItemDef);
@@ -109,7 +112,9 @@ UN1InventoryItemInstance* FN1InventoryList::AddEntry(TSubclassOf<UN1InventoryIte
 
 void FN1InventoryList::AddEntry(UN1InventoryItemInstance* Instance)
 {
-	unimplemented();
+	FN1InventoryEntry& NewEntry = Entries.AddDefaulted_GetRef();
+	NewEntry.Instance = Instance;
+	MarkItemDirty(NewEntry);
 }
 
 void FN1InventoryList::RemoveEntry(UN1InventoryItemInstance* Instance)
@@ -189,7 +194,6 @@ void UN1InventoryManagerComponent::AddItemInstance(UN1InventoryItemInstance* Ite
 void UN1InventoryManagerComponent::RemoveItemInstance(UN1InventoryItemInstance* ItemInstance)
 {
 	InventoryList.RemoveEntry(ItemInstance);
-
 	if (ItemInstance && IsUsingRegisteredSubObjectList())
 	{
 		RemoveReplicatedSubObject(ItemInstance);
@@ -262,6 +266,14 @@ bool UN1InventoryManagerComponent::ConsumeItemsByDefinition(TSubclassOf<UN1Inven
 	}
 
 	return TotalConsumed == NumToConsume;
+}
+
+void UN1InventoryManagerComponent::BroadcastChangeMessage(UN1InventoryItemInstance* ItemInstance, int32 OldCount, int32 NewCount)
+{
+	FN1InventoryEntry Entry;
+	Entry.Instance = ItemInstance;
+
+	InventoryList.BroadcastChangeMessage(Entry, OldCount, NewCount);
 }
 
 void UN1InventoryManagerComponent::ReadyForReplication()

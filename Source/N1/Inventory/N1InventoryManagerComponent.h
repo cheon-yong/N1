@@ -59,9 +59,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<UN1InventoryItemInstance> Instance = nullptr;
 
-	UPROPERTY()
-	int32 StackCount = 0;
-
 	UPROPERTY(NotReplicated)
 	int32 LastObservedCount = INDEX_NONE;
 };
@@ -154,6 +151,9 @@ class N1_API UN1InventoryManagerComponent : public UActorComponent
 
 	int32 GetTotalItemCountByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef) const;
 	bool ConsumeItemsByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef, int32 NumToConsume);
+
+	UFUNCTION(BlueprintCallable)
+	void BroadcastChangeMessage(UN1InventoryItemInstance* ItemInstance, int32 OldCount, int32 NewCount);
 
 	//~UObject interface
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;

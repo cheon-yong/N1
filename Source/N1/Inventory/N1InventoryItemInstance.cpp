@@ -46,6 +46,26 @@ void UN1InventoryItemInstance::RemoveStatTagStack(FGameplayTag Tag, int32 StackC
 	StatTags.RemoveStack(Tag, StackCount);
 }
 
+void UN1InventoryItemInstance::SetStackCounter(int32 StackCount)
+{
+	StackCounter = StackCount;
+}
+
+int32 UN1InventoryItemInstance::GetStackCounter()
+{
+	return StackCounter;
+}
+
+void UN1InventoryItemInstance::AddStackCounter(int32 AddCounter)
+{
+	StackCounter += AddCounter;
+}
+
+void UN1InventoryItemInstance::ReduceStackCounter(int32 ReduceCounter)
+{
+	StackCounter -= ReduceCounter;
+}
+
 int32 UN1InventoryItemInstance::GetStatTagStackCount(FGameplayTag Tag) const
 {
 	return StatTags.GetStackCount(Tag);
