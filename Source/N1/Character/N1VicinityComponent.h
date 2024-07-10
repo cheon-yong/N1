@@ -166,6 +166,9 @@ public:
 	bool ConsumeItemsByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef, int32 NumToConsume);
 	// ~ End TODO : make interface
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnItemInstance(UN1InventoryItemInstance* InventroyInstance);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
 

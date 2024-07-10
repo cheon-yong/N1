@@ -14,6 +14,6 @@ class UN1InventoryItemFragment_EquippableItem : public UN1InventoryItemFragment
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, Category = N1)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = N1)
 	TSubclassOf<UN1EquipmentDefinition> EquipmentDefinition;
 };

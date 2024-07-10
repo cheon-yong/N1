@@ -17,6 +17,9 @@
 #include "Engine/EngineTypes.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
+#include "Inventory/N1InventoryFragment_EquippableItem.h"
+#include "Equipment/N1EquipmentInstance.h"
+#include "Equipment/N1EquipmentDefinition.h"
 
 const FName UN1VicinityComponent::NAME_BindInputsNow("BindInputsNow");
 const FName UN1VicinityComponent::NAME_ActorFeatureName("Vicinity");
@@ -118,7 +121,9 @@ UN1InventoryItemInstance* FN1VicinityList::AddEntry(TSubclassOf<UN1InventoryItem
 
 void FN1VicinityList::AddEntry(UN1InventoryItemInstance* Instance)
 {
-	unimplemented();
+	FN1VicinityEntry& NewEntry = Entries.AddDefaulted_GetRef();
+	NewEntry.Instance = Instance;
+	MarkItemDirty(NewEntry);
 }
 
 void FN1VicinityList::RemoveEntry(UN1InventoryItemInstance* Instance)
@@ -388,6 +393,26 @@ bool UN1VicinityComponent::ConsumeItemsByDefinition(TSubclassOf<UN1InventoryItem
 	}
 
 	return TotalConsumed == NumToConsume;
+}
+
+void UN1VicinityComponent::SpawnItemInstance(UN1InventoryItemInstance* InventroyInstance)
+{
+	if (const UN1InventoryItemFragment_EquippableItem* EquipInfo = InventroyInstance->FindFragmentByClass<UN1InventoryItemFragment_EquippableItem>())
+	{
+		TSubclassOf<UN1EquipmentDefinition> EquipDef = EquipInfo->EquipmentDefinition;
+		if (EquipDef != nullptr)
+		{
+			const UN1EquipmentDefinition* EquipmentCDO = GetDefault<UN1EquipmentDefinition>(EquipDef);
+
+			auto ActorsToSpawn = EquipmentCDO->ActorsToSpawn;
+			auto SpawnTransform = GetOwner()->GetTransform();
+			for (const FN1EquipmentActorToSpawn& SpawnInfo : ActorsToSpawn)
+			{
+				AActor* NewActor = GetWorld()->SpawnActorDeferred<AActor>(SpawnInfo.ActorToSpawn, SpawnTransform);
+				NewActor->FinishSpawning(SpawnTransform, /*bIsDefaultTransform=*/ true);
+			}
+		}
+	}
 }
 
 void UN1VicinityComponent::OnChangedList()

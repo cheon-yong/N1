@@ -1,0 +1,1 @@
+#include "E:/unreal-workspace/N1/Plugins/GameFeatures/ShooterCore/Source/ShooterCoreRuntime/Public/N1WorldCollectable.h"

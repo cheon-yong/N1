@@ -12,7 +12,7 @@
 class UN1EquipmentInstance;
 class UN1AbilitySet;
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FN1EquipmentActorToSpawn
 {
 	GENERATED_BODY()
@@ -38,6 +38,7 @@ class N1_API UN1EquipmentDefinition : public UObject
 public:
 	UN1EquipmentDefinition(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+public:
 	UPROPERTY(EditDefaultsOnly, Category = Equipment)
 	TSubclassOf<UN1EquipmentInstance> InstanceType;
 
