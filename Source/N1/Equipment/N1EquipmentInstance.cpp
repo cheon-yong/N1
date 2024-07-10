@@ -10,6 +10,7 @@
 #if UE_WITH_IRIS
 #include "Iris/ReplicationSystem/ReplicationFragmentUtil.h"
 #endif // UE_WITH_IRIS
+#include <Components/BoxComponent.h>
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(N1EquipmentInstance)
 
@@ -83,10 +84,16 @@ void UN1EquipmentInstance::SpawnEquipmentActors(const TArray<FN1EquipmentActorTo
 		for (const FN1EquipmentActorToSpawn& SpawnInfo : ActorsToSpawn)
 		{
 			AActor* NewActor = GetWorld()->SpawnActorDeferred<AActor>(SpawnInfo.ActorToSpawn, FTransform::Identity, OwningPawn);
+			if (auto CollisionComp = NewActor->GetComponentByClass<UShapeComponent>())
+			{
+				CollisionComp->SetSimulatePhysics(false);
+				CollisionComp->SetCollisionProfileName(TEXT("NoCollision"));
+			}
 			NewActor->FinishSpawning(FTransform::Identity, /*bIsDefaultTransform=*/ true);
 			NewActor->SetActorRelativeTransform(SpawnInfo.AttachTransform);
 			NewActor->AttachToComponent(AttachTarget, FAttachmentTransformRules::KeepRelativeTransform, SpawnInfo.AttachSocket);
 
+			
 			SpawnedActors.Add(NewActor);
 		}
 	}

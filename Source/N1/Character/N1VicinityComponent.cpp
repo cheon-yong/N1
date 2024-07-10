@@ -409,6 +409,11 @@ void UN1VicinityComponent::SpawnItemInstance(UN1InventoryItemInstance* Inventroy
 			for (const FN1EquipmentActorToSpawn& SpawnInfo : ActorsToSpawn)
 			{
 				AActor* NewActor = GetWorld()->SpawnActorDeferred<AActor>(SpawnInfo.ActorToSpawn, SpawnTransform);
+				if (auto CollisionComp = NewActor->GetComponentByClass<UShapeComponent>())
+				{
+					CollisionComp->SetSimulatePhysics(true);
+					CollisionComp->SetCollisionProfileName(TEXT("FieldWeapon"));
+				}
 				NewActor->FinishSpawning(SpawnTransform, /*bIsDefaultTransform=*/ true);
 			}
 		}
