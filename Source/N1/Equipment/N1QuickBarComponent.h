@@ -18,7 +18,7 @@ class UN1QuickBarComponent : public UControllerComponent
 {
 	GENERATED_BODY()
 
-	public:
+public:
 	UN1QuickBarComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UFUNCTION(BlueprintCallable, Category = "N1")

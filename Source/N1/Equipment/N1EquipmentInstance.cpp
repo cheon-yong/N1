@@ -84,15 +84,15 @@ void UN1EquipmentInstance::SpawnEquipmentActors(const TArray<FN1EquipmentActorTo
 		for (const FN1EquipmentActorToSpawn& SpawnInfo : ActorsToSpawn)
 		{
 			AActor* NewActor = GetWorld()->SpawnActorDeferred<AActor>(SpawnInfo.ActorToSpawn, FTransform::Identity, OwningPawn);
+			
+			NewActor->FinishSpawning(FTransform::Identity, /*bIsDefaultTransform=*/ true);
+			NewActor->SetActorRelativeTransform(SpawnInfo.AttachTransform);
+			NewActor->AttachToComponent(AttachTarget, FAttachmentTransformRules::KeepRelativeTransform, SpawnInfo.AttachSocket);
 			if (auto CollisionComp = NewActor->GetComponentByClass<UShapeComponent>())
 			{
 				CollisionComp->SetSimulatePhysics(false);
 				CollisionComp->SetCollisionProfileName(TEXT("NoCollision"));
 			}
-			NewActor->FinishSpawning(FTransform::Identity, /*bIsDefaultTransform=*/ true);
-			NewActor->SetActorRelativeTransform(SpawnInfo.AttachTransform);
-			NewActor->AttachToComponent(AttachTarget, FAttachmentTransformRules::KeepRelativeTransform, SpawnInfo.AttachSocket);
-
 			
 			SpawnedActors.Add(NewActor);
 		}
