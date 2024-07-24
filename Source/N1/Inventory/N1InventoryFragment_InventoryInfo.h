@@ -18,6 +18,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Appearance)
 	FSlateBrush Icon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
+	TObjectPtr<UMaterial> QuickslotMat;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Appearance)
 	FText Name;
 };

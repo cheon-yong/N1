@@ -253,6 +253,7 @@ void UN1VicinityComponent::HandleChangeInitState(UGameFrameworkComponentManager*
 		// TODO : Intialize something
 		if (AN1Character* N1Character = Cast<AN1Character>(Pawn))
 		{
+			VicinityList.OwnerComponent = this;
 			N1Character->VicinityCollision->OnComponentBeginOverlap.AddDynamic(this, &UN1VicinityComponent::OnOverlapBegin);
 			N1Character->VicinityCollision->OnComponentEndOverlap.AddDynamic(this, &UN1VicinityComponent::OnOverlapEnd);
 		}
