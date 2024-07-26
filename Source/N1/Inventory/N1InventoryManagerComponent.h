@@ -152,6 +152,9 @@ class N1_API UN1InventoryManagerComponent : public UActorComponent
 	int32 GetTotalItemCountByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef) const;
 	bool ConsumeItemsByDefinition(TSubclassOf<UN1InventoryItemDefinition> ItemDef, int32 NumToConsume);
 
+	UFUNCTION(BlueprintCallable, Category = Inventory, BlueprintPure = false)
+	bool ConsumeItemByDefinitionWithStack(TSubclassOf<UN1InventoryItemDefinition> ItemDef, int32 NumToConsume);
+
 	UFUNCTION(BlueprintCallable)
 	void BroadcastChangeMessage(UN1InventoryItemInstance* ItemInstance, int32 OldCount, int32 NewCount);
 

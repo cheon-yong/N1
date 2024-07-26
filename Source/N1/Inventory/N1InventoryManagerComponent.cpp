@@ -268,6 +268,38 @@ bool UN1InventoryManagerComponent::ConsumeItemsByDefinition(TSubclassOf<UN1Inven
 	return TotalConsumed == NumToConsume;
 }
 
+bool UN1InventoryManagerComponent::ConsumeItemByDefinitionWithStack(TSubclassOf<UN1InventoryItemDefinition> ItemDef, int32 NumToConsume)
+{
+	AActor* OwningActor = GetOwner();
+	if (!OwningActor || !OwningActor->HasAuthority())
+	{
+		return false;
+	}
+
+	if (UN1InventoryItemInstance* Instance = UN1InventoryManagerComponent::FindFirstItemStackByDefinition(ItemDef))
+	{
+		int32 OldCount = Instance->GetStackCounter();
+		Instance->ReduceStackCounter(NumToConsume);
+		int32 NewCount = Instance->GetStackCounter();
+		if (NewCount < 0)
+		{
+			NewCount = 0;
+		}
+
+		BroadcastChangeMessage(Instance, OldCount, NewCount);
+
+		if (Instance->GetStackCounter() <= 0)
+		{
+			InventoryList.RemoveEntry(Instance);
+		}
+
+		
+
+		return true;
+	}
+	return false;
+}
+
 void UN1InventoryManagerComponent::BroadcastChangeMessage(UN1InventoryItemInstance* ItemInstance, int32 OldCount, int32 NewCount)
 {
 	FN1InventoryEntry Entry;

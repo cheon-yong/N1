@@ -411,6 +411,8 @@ void UN1VicinityComponent::SpawnItemInstance(UN1InventoryItemInstance* Inventroy
 			{
 				AActor* NewActor = GetWorld()->SpawnActorDeferred<AActor>(SpawnInfo.ActorToSpawn, SpawnTransform);
 				NewActor->FinishSpawning(SpawnTransform, /*bIsDefaultTransform=*/ true);
+				
+				auto* RootComp = NewActor->GetRootComponent();
 				if (auto CollisionComp = NewActor->GetComponentByClass<UShapeComponent>())
 				{
 					CollisionComp->SetSimulatePhysics(true);
