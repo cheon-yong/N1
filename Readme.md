@@ -9,7 +9,7 @@
 
 ### 플러그인
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/822bcd81-8eb0-4ea3-8f40-15781eb61fe7/51a53fb0-b516-4fd7-b56f-b04a6d8824bd/Untitled.png)
+![Plugin](https://github.com/user-attachments/assets/09f5623f-da8d-485d-8f29-f43b98a55409)
 
 - 프로젝트를 진행할 때 반복적으로 사용하는 코드 또는 컨텐츠들을 플러그인으로 제작하여 재사용성을 높였습니다.
 
