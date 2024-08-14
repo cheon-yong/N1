@@ -1,21 +1,10 @@
----
-
 ## 프로젝트 요약
-
 ---
 
 - Unreal Engine 5의 샘플 프로젝트인 Lyra를 분석하기 위한 프로젝트
 - Lyra Project에 적용된 코드들을 적용하고 확장하기
 - 원하는 기능을 Lyra Project에서 구현한 방식을 재구현하는 방식으로 개발.
 - GameplayAbilities, GameplayEffect, GameplayTags 등 GAS를 사용
-
-## GitHub
-
----
-
-https://github.com/cheon-yong/N1
-
----
 
 ## 상세 개발사항
 
